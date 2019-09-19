@@ -1,0 +1,60 @@
+import request from 'supertest';
+import { Test } from '@nestjs/testing';
+import { AppModule } from './../src/modules/app/app.module';
+import { UsersModule } from '../src/modules/users/users.module';
+import { AuthModule, AuthService } from '../src/modules/auth';
+import { RegisterDto } from '../src/modules/auth/dto/register.dto'
+import { UsersService } from '../src/modules/users/users.service';
+import { INestApplication, HttpStatus } from '@nestjs/common';
+
+
+describe('User', () => {
+  let app: INestApplication;
+  //const usersService = { getAll: () => ['test'] };
+  const usersService = UsersService;
+  const user: RegisterDto = {
+    username: 'username',
+    email: 'user999@user.com',
+    password: 'password',
+    password_confirmation: 'password'
+  };
+
+  beforeAll(async () => {
+    const module = await Test.createTestingModule({
+      imports: [AppModule, AuthModule, UsersModule],
+    })
+      .overrideProvider(UsersService)
+      .useValue(usersService)
+      .compile();
+
+    app = module.createNestApplication();
+    await app.init();
+  });
+
+  afterAll(async () => {
+    await app.close();
+  });
+
+  it('should register user', () => {
+    return request(app.getHttpServer())
+      .post('/auth/signup')
+      .set('Accept', 'application/json')
+      .send(user)
+      // .expect(({ body }) => {
+      //   expect(body.user.email).toEqual('user999@user.com');
+      //   expect(body.user.username).toEqual('username');
+      //   expect(body.user.password).toBeUndefined();
+      // })
+      .expect(HttpStatus.CREATED);
+  });
+
+  it(`/GET users`, () => {
+    return request(app.getHttpServer())
+      .get('/users')
+      .expect(401)
+      // .expect({
+      //   data: usersService.getAll(),
+      // });
+  });
+
+});
