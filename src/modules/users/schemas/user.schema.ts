@@ -1,10 +1,10 @@
 import bcrypt from 'bcrypt';
 import uuid from 'uuid';
-import mongoose from 'mongoose';
+import { Schema, HookNextFunction } from 'mongoose';
 import mongoosePaginate from 'mongoose-paginate-v2';
 import uniqueValidator from 'mongoose-unique-validator';
 
-export const UserSchema = new mongoose.Schema(
+export const UserSchema = new Schema(
   {
     uid: {
       type: String,
@@ -78,19 +78,30 @@ export const UserSchema = new mongoose.Schema(
       default: Date.now,
       select: false,
     },
-    createdAt: { type: Date, select: false },
-    updatedAt: { type: Date, select: false },
+    created_at: { type: Date, default: Date.now, select: false },
+    updated_at: { type: Date, default: Date.now, select: false },
   },
   {
     versionKey: false,
-    timestamps: true,
+    timestamps: false,
   },
 );
 
-UserSchema.pre('save', async function(next: mongoose.HookNextFunction) {
+UserSchema.pre('save', async function(next: HookNextFunction) {
+  /**
+   * Generate uuid
+   */
   if (this.isNew) {
     (this as any).uid = await uuid.v4();
   }
+  /**
+   * On every save, add the date
+   */
+  const currentDate = new Date();
+  (this as any).updated_at = currentDate;
+  /**
+   * Rehash password if modified
+   */
   try {
     if (!this.isModified('password')) {
       return next();

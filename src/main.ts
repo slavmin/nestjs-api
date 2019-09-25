@@ -1,16 +1,17 @@
 import { NestFactory, HttpAdapterHost } from '@nestjs/core';
 import { NestExpressApplication, ExpressAdapter } from '@nestjs/platform-express';
 import { ValidationPipe } from '@nestjs/common';
+import 'dotenv/config';
 // import Express from 'express';
 
 import helmet from 'helmet';
 import compression from 'compression';
-// import rateLimit from 'express-rate-limit';
 import slowDown from 'express-slow-down';
+// import rateLimit from 'express-rate-limit';
 
 import { AppModule } from './modules/app/app.module';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
-// import { RedisIoAdapter } from './common/adapters/redis-io.adapter';
+import { RedisIoAdapter } from './common/adapters/redis-io.adapter';
 // import { ValidationPipe } from './common/pipes/validation.pipe';
 
 // const server = Express();
@@ -18,7 +19,7 @@ import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   // const app = await NestFactory.create(AppModule, new ExpressAdapter(server));
-  // app.useWebSocketAdapter(new RedisIoAdapter(app));
+  app.useWebSocketAdapter(new RedisIoAdapter(app));
   app.enableCors();
   app.use(helmet());
   app.use(compression());

@@ -2,8 +2,8 @@ import { Module, Global } from '@nestjs/common';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { ConfigModule, ConfigService } from '../config';
 import { DatabaseModule } from '../database/database.module';
-import { UsersModule, UsersService } from '../users';
-// import { AuthModule } from '../auth';
+// import { UsersModule, UsersService } from '../users';
+import { AuthModule } from '../auth';
 import { MailerModule, PugAdapter, HandlebarsAdapter } from '@nest-modules/mailer';
 import { LoggingInterceptor } from './../../common/interceptors/logging.interceptor';
 import { ErrorsInterceptor } from './../../common/interceptors/exception.interceptor';
@@ -15,7 +15,7 @@ import { join } from 'path';
   imports: [
     ConfigModule,
     DatabaseModule,
-    UsersModule,
+    AuthModule,
     MailerModule.forRootAsync({
       // imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
@@ -47,6 +47,6 @@ import { join } from 'path';
       useClass: LoggingInterceptor,
     },
   ],
-  exports: [ConfigModule, DatabaseModule, UsersModule, MailerModule],
+  exports: [ConfigModule, DatabaseModule, AuthModule, MailerModule],
 })
 export class CommonModule {}

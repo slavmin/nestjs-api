@@ -7,7 +7,7 @@ import { RegisterDto, LoginDto, EmailDto, ResetPassDto, SendMailDto } from './dt
 import { Provider } from './strategies/providers';
 import crypto from 'crypto';
 import uuid from 'uuid';
-import moment = require('moment');
+import moment from 'moment';
 
 @Injectable()
 export class AuthService {
@@ -31,7 +31,7 @@ export class AuthService {
     }
 
     const tokenId = await AuthService.makeTokenId();
-    const payload = { sub: user.id, jti: tokenId, scope: 'profile' };
+    const payload = { sub: user.id, name: user.name, jti: tokenId, scope: 'profile' };
 
     return {
       access_token: this.jwtService.sign(payload, { header: { jti: tokenId } }),
