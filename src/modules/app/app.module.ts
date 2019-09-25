@@ -1,7 +1,8 @@
 import { Module, CacheModule, CACHE_MANAGER, Inject, Logger } from '@nestjs/common';
 import { CommonModule } from './../common/common.module';
-import { AuthModule } from '../auth';
+// import { AuthModule } from '../auth';
 import * as redisStore from 'cache-manager-redis-store';
+import { info } from 'console';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
