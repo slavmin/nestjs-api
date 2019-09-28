@@ -2,6 +2,7 @@ import { Controller, Request, Post, Body, Get, UseGuards, Param, HttpException, 
 import { AuthService } from './../auth/auth.service';
 import { RegisterDto, LoginDto, EmailDto, ResetPassDto } from './../auth/dto';
 import { AuthGuard } from '@nestjs/passport';
+// import { AuthGuard } from '../../common/guards/auth.gaurd';
 import { RolesGuard } from './../../common/guards/roles.guard';
 import { Roles } from './../../common/decorators/roles.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
@@ -28,6 +29,13 @@ export class AuthController {
   @Get('profile')
   async getProfile(@Request() req: any) {
     return req.user;
+  }
+
+  @Post('/refresh-token')
+  async refreshToken(@Request() req: any): Promise<any> {
+    const body = req.body;
+    // const user = await this.usersService.getById(payload.sub);
+    // return await this.authService.refreshToken(body.refreshToken);
   }
 
   @Post('verify/resend')

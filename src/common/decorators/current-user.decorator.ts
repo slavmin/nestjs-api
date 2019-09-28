@@ -11,9 +11,12 @@ export const CurrentUser = createParamDecorator(async (data, req) => {
   const token = req.headers.authorization ? (req.headers.authorization as string).split(' ') : null;
   if (token && token[1]) {
     try {
-      const decoded: any = Jwtverify(token[1], process.env.JWT_SECRET);
+      const decoded: any = Jwtverify(token[1], process.env.JWT_SECRET, { ignoreExpiration: true });
       return decoded.sub;
     } catch (err) {
+      if (err.name === 'TokenExpiredError') {
+        throw new HttpException('TOKEN_EXPIRED_ERROR', HttpStatus.UNAUTHORIZED);
+      }
       throw new HttpException('TOKEN_ERROR', HttpStatus.UNAUTHORIZED);
     }
   }

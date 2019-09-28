@@ -1,8 +1,9 @@
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus, CACHE_MANAGER, Inject, Logger } from '@nestjs/common';
 import { ConfigService } from '../config/';
 import { JwtService } from '@nestjs/jwt';
 import { MailerService } from '@nest-modules/mailer';
 import { UsersService } from '../users/users.service';
+import { User } from '../users/interfaces/user.interface';
 import { RegisterDto, LoginDto, EmailDto, ResetPassDto, SendMailDto } from './dto';
 import { Provider } from './strategies/providers';
 import crypto from 'crypto';
@@ -12,11 +13,14 @@ import moment from 'moment';
 @Injectable()
 export class AuthService {
   constructor(
+    @Inject(CACHE_MANAGER) private readonly cacheManager,
     private readonly configService: ConfigService,
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
     private readonly mailerService: MailerService,
   ) {}
+
+  private logger: Logger = new Logger('AuthService');
 
   async validateUser(loginDto: LoginDto): Promise<any> {
     const { email, password } = loginDto;
@@ -30,11 +34,11 @@ export class AuthService {
       throw new HttpException('INVALID_CREDENTIALS', HttpStatus.BAD_REQUEST);
     }
 
-    const tokenId = await AuthService.makeTokenId();
-    const payload = { sub: user.id, name: user.name, jti: tokenId, scope: 'profile' };
+    const { accessToken, refreshToken } = await this.generateToken(user);
 
     return {
-      access_token: this.jwtService.sign(payload, { header: { jti: tokenId } }),
+      access_token: accessToken,
+      refresh_token: refreshToken,
       user,
     };
   }
@@ -80,6 +84,38 @@ export class AuthService {
     return {
       message: 'REGISTRATION_SUCCESS',
     };
+  }
+
+  async generateToken(user: User): Promise<any> {
+    const accessTokenId = await AuthService.makeTokenId();
+    const accessPayload = { sub: user.id, name: user.name, jti: accessTokenId, scope: 'profile' };
+
+    const refreshTokenId = await AuthService.makeTokenId();
+    const refreshPayload = { sub: user.id, jti: refreshTokenId };
+
+    const accessToken = this.jwtService.sign(accessPayload, {
+      header: { jti: accessTokenId },
+      expiresIn: this.configService.get('JWT_EXPIRATION'),
+    });
+    const refreshToken = this.jwtService.sign(refreshPayload, {
+      header: { jti: refreshTokenId },
+      expiresIn: this.configService.get('JWT_REFRESH_EXPIRATION'),
+    });
+
+    const client = await this.cacheManager.store.getClient();
+    await client.set(
+      user.id,
+      JSON.stringify({ accessTokenId, refreshTokenId, user }),
+      'EX',
+      this.configService.get('JWT_REFRESH_EXPIRATION'),
+      (err: any) => {
+        if (err) {
+          this.logger.log(err);
+        }
+      },
+    );
+
+    return { accessToken, refreshToken };
   }
 
   async getVerificationToken(tokenId: string): Promise<any> {

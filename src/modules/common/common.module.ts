@@ -1,4 +1,4 @@
-import { Module, Global } from '@nestjs/common';
+import { Module, Global, CacheModule, Inject, CACHE_MANAGER, Logger } from '@nestjs/common';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { ConfigModule, ConfigService } from '../config';
 import { DatabaseModule } from '../database/database.module';
@@ -8,6 +8,7 @@ import { MailerModule, PugAdapter, HandlebarsAdapter } from '@nest-modules/maile
 import { LoggingInterceptor } from './../../common/interceptors/logging.interceptor';
 import { ErrorsInterceptor } from './../../common/interceptors/exception.interceptor';
 import { TransformInterceptor } from './../../common/interceptors/transform.interceptor';
+import * as redisStore from 'cache-manager-redis-store';
 import { join } from 'path';
 
 @Global()
@@ -15,9 +16,17 @@ import { join } from 'path';
   imports: [
     ConfigModule,
     DatabaseModule,
+    CacheModule.registerAsync({
+      useFactory: async (configService: ConfigService) => ({
+        store: redisStore,
+        host: configService.get('REDIS_HOST'),
+        port: configService.get('REDIS_PORT'),
+        ttl: configService.get('CACHE_TTL'),
+      }),
+      inject: [ConfigService],
+    }),
     AuthModule,
     MailerModule.forRootAsync({
-      // imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
         transport: {
           host: configService.get('MAIL_HOST'),
@@ -47,6 +56,16 @@ import { join } from 'path';
       useClass: LoggingInterceptor,
     },
   ],
-  exports: [ConfigModule, DatabaseModule, AuthModule, MailerModule],
+  exports: [ConfigModule, DatabaseModule, AuthModule, CacheModule, MailerModule],
 })
-export class CommonModule {}
+export class CommonModule {
+  private logger: Logger = new Logger('CommonModule');
+
+  constructor(@Inject(CACHE_MANAGER) private readonly cacheManager) {
+    const client = cacheManager.store.getClient();
+
+    client.on('error', error => {
+      this.logger.log(error);
+    });
+  }
+}
