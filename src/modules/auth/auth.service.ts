@@ -95,11 +95,11 @@ export class AuthService {
 
     const accessToken = this.jwtService.sign(accessPayload, {
       header: { jti: accessTokenId },
-      expiresIn: this.configService.get('JWT_EXPIRATION'),
+      expiresIn: parseInt(this.configService.get('JWT_EXPIRATION'), 10),
     });
     const refreshToken = this.jwtService.sign(refreshPayload, {
       header: { jti: refreshTokenId },
-      expiresIn: this.configService.get('JWT_REFRESH_EXPIRATION'),
+      expiresIn: parseInt(this.configService.get('JWT_REFRESH_EXPIRATION'), 10),
     });
 
     const client = await this.cacheManager.store.getClient();

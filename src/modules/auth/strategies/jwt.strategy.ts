@@ -4,6 +4,7 @@ import { Injectable, CACHE_MANAGER, Inject, Logger, HttpException, HttpStatus } 
 import { UsersService } from './../../users/users.service';
 import { ConfigService } from '../../config';
 import { JwtPayload } from '../dto/auth.dto';
+import { AuthService } from '../auth.service';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
@@ -12,11 +13,12 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   constructor(
     private readonly usersService: UsersService,
     private readonly configService: ConfigService,
+    private readonly authService: AuthService,
     @Inject(CACHE_MANAGER) private readonly cacheManager,
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      ignoreExpiration: true,
+      ignoreExpiration: false,
       secretOrKey: configService.get('JWT_SECRET'),
     });
   }
@@ -25,17 +27,22 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     const data = await this.getTokenFromStore(payload).catch(err => {
       throw new HttpException('UNAUTHORIZED', HttpStatus.UNAUTHORIZED);
     });
-    return data ? done(null, data.user) : null;
+
+    if (payload.jti === data.accessTokenId) {
+      return data ? done(null, data.user) : null;
+    }
+
+    return null;
   }
 
   async getTokenFromStore(payload: JwtPayload): Promise<any> {
     const cacheClient = this.cacheManager.store.getClient();
     return await new Promise((resolve, reject) => {
-      cacheClient.get(payload.sub, (err: any, data: string) => {
-        if (err) {
-          reject(err);
+      cacheClient.get(payload.sub, (error: any, response: string) => {
+        if (error) {
+          reject(error);
         }
-        resolve(JSON.parse(data));
+        resolve(JSON.parse(response));
       });
     });
   }
