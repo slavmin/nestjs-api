@@ -1,4 +1,4 @@
-import { createParamDecorator, HttpException, HttpStatus } from '@nestjs/common';
+import { createParamDecorator, HttpException, HttpStatus, Logger } from '@nestjs/common';
 import { verify as Jwtverify } from 'jsonwebtoken';
 import redis from 'redis';
 import 'dotenv/config';
@@ -26,7 +26,8 @@ export const RefreshToken = createParamDecorator(async (redisData, req) => {
       if (decoded.jti === redisData.refreshTokenId) {
         return redisData;
       } else {
-        console.log(decoded.jti + ' ' + redisData.refreshTokenId)
+        // Logger for debugging only
+        Logger.log(decoded.jti + ' ' + redisData.refreshTokenId);
         throw new HttpException('TOKEN_NOT_VALID_REFRESH_TOKEN', HttpStatus.BAD_REQUEST);
       }
     } catch (err) {
