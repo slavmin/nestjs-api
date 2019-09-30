@@ -34,11 +34,12 @@ export class AuthService {
       throw new HttpException('INVALID_CREDENTIALS', HttpStatus.BAD_REQUEST);
     }
 
-    const { accessToken, refreshToken } = await this.generateToken(user);
+    const { accessToken, refreshToken, expiresIn } = await this.generateToken(user);
 
     return {
       access_token: accessToken,
       refresh_token: refreshToken,
+      expires_in: expiresIn,
       user,
     };
   }
@@ -93,6 +94,8 @@ export class AuthService {
     const refreshTokenId = await AuthService.makeTokenId();
     const refreshPayload = { sub: user.id, jti: refreshTokenId };
 
+    const expiresIn = parseInt(this.configService.get('JWT_REFRESH_EXPIRATION'), 10);
+
     const accessToken = this.jwtService.sign(accessPayload, {
       header: { jti: accessTokenId },
       expiresIn: parseInt(this.configService.get('JWT_EXPIRATION'), 10),
@@ -115,7 +118,7 @@ export class AuthService {
       },
     );
 
-    return { accessToken, refreshToken };
+    return { accessToken, refreshToken, expiresIn };
   }
 
   async getVerificationToken(tokenId: string): Promise<any> {

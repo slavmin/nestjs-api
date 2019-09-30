@@ -26,14 +26,15 @@ export const RefreshToken = createParamDecorator(async (redisData, req) => {
       if (decoded.jti === redisData.refreshTokenId) {
         return redisData;
       } else {
-        throw new HttpException('UNAUTHORIZED', HttpStatus.UNAUTHORIZED);
+        console.log(decoded.jti + ' ' + redisData.refreshTokenId)
+        throw new HttpException('TOKEN_NOT_VALID_REFRESH_TOKEN', HttpStatus.BAD_REQUEST);
       }
     } catch (err) {
       if (err.name === 'TokenExpiredError') {
-        throw new HttpException('TOKEN_EXPIRED_ERROR', HttpStatus.UNAUTHORIZED);
+        throw new HttpException('TOKEN_EXPIRED', HttpStatus.UNAUTHORIZED);
       }
-      throw new HttpException('TOKEN_INVALID_ERROR', HttpStatus.UNAUTHORIZED);
+      throw new HttpException('TOKEN_NOT_VALID', HttpStatus.UNAUTHORIZED);
     }
   }
-  throw new HttpException('TOKEN_INVALID_ERROR', HttpStatus.UNAUTHORIZED);
+  throw new HttpException('TOKEN_MISSING', HttpStatus.UNAUTHORIZED);
 });

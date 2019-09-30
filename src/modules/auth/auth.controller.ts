@@ -36,10 +36,11 @@ export class AuthController {
   async refreshToken(@RefreshToken() data: any): Promise<any> {
     const user = await this.usersService.getById(data.user.id);
     if (user && !user.blocked) {
-      const { accessToken, refreshToken } = await this.authService.generateToken(user);
+      const { accessToken, refreshToken, expiresIn } = await this.authService.generateToken(user);
       return {
         access_token: accessToken,
         refresh_token: refreshToken,
+        expires_in: expiresIn,
         user,
       };
     }
