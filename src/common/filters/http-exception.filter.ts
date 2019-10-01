@@ -11,11 +11,11 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const name = error.response ? error.response.name || error.response.error || error.name : null;
     const message = error.response
       ? error.response.message || error.response.error || error.message
-      : 'INTERNAL_SERVER_ERROR';
+      : 'SOMETHING_WENT_WRONG';
     const time = error.response ? error.response.time : null;
 
     const response = {
-      statusCode: status,
+      status,
       error: name,
       message,
       time,

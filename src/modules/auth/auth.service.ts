@@ -87,6 +87,20 @@ export class AuthService {
     };
   }
 
+  async logoutUser(userId: string): Promise<any> {
+    const cacheClient = await this.cacheManager.store.getClient();
+    await cacheClient.del(userId, (err: any) => {
+      if (err) {
+        this.logger.log(err);
+        throw new HttpException('KEY_NOT_FOUND', HttpStatus.NOT_ACCEPTABLE);
+      }
+    });
+
+    return {
+      message: 'LOGOUT_SUCCESS',
+    };
+  }
+
   async generateToken(user: User): Promise<any> {
     const accessTokenId = await AuthService.makeTokenId();
     const accessPayload = { sub: user.id, name: user.name, jti: accessTokenId, scope: 'profile' };
@@ -105,8 +119,8 @@ export class AuthService {
       expiresIn: parseInt(this.configService.get('JWT_REFRESH_EXPIRATION'), 10),
     });
 
-    const client = await this.cacheManager.store.getClient();
-    await client.set(
+    const cacheClient = await this.cacheManager.store.getClient();
+    await cacheClient.set(
       user.id,
       JSON.stringify({ accessTokenId, refreshTokenId, user }),
       'EX',
@@ -114,6 +128,7 @@ export class AuthService {
       (err: any) => {
         if (err) {
           this.logger.log(err);
+          throw new HttpException('SERVICE_UNAVAILABLE', HttpStatus.SERVICE_UNAVAILABLE);
         }
       },
     );

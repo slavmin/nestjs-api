@@ -1,4 +1,15 @@
-import { Controller, Request, Post, Body, Get, UseGuards, Param, HttpException, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Request,
+  Post,
+  Body,
+  Get,
+  UseGuards,
+  Param,
+  HttpException,
+  HttpStatus,
+  HttpCode,
+} from '@nestjs/common';
 import { AuthService } from './../auth/auth.service';
 import { UsersService } from './../users/users.service';
 import { RegisterDto, LoginDto, EmailDto, ResetPassDto } from './../auth/dto';
@@ -23,6 +34,13 @@ export class AuthController {
   @Post('signup')
   async register(@Body() registerDto: RegisterDto) {
     return await this.authService.registerUser(registerDto);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Post('signout')
+  @HttpCode(204)
+  async logout(@Request() req: any): Promise<any> {
+    return await this.authService.logoutUser(req.user.id);
   }
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)

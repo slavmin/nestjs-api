@@ -27,15 +27,15 @@ export const RefreshToken = createParamDecorator(async (redisData, req) => {
         return redisData;
       } else {
         // Logger for debugging only
-        Logger.log(decoded.jti + ' ' + redisData.refreshTokenId);
-        throw new HttpException('TOKEN_NOT_VALID_REFRESH_TOKEN', HttpStatus.BAD_REQUEST);
+        // Logger.log(decoded.jti + ' ' + redisData.refreshTokenId);
+        throw new HttpException('NOT_VALID_REFRESH_TOKEN', HttpStatus.BAD_REQUEST);
       }
     } catch (err) {
       if (err.name === 'TokenExpiredError') {
         throw new HttpException('TOKEN_EXPIRED', HttpStatus.UNAUTHORIZED);
       }
-      throw new HttpException('TOKEN_NOT_VALID', HttpStatus.UNAUTHORIZED);
+      throw new HttpException('TOKEN_NOT_VALID', HttpStatus.BAD_REQUEST);
     }
   }
-  throw new HttpException('TOKEN_MISSING', HttpStatus.UNAUTHORIZED);
+  throw new HttpException('TOKEN_MISSING', HttpStatus.BAD_REQUEST);
 });
