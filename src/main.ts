@@ -5,7 +5,7 @@ import 'dotenv/config';
 // import Express from 'express';
 
 import helmet from 'helmet';
-import compression from 'compression';
+// import compression from 'compression';
 import slowDown from 'express-slow-down';
 // import rateLimit from 'express-rate-limit';
 
@@ -22,7 +22,7 @@ async function bootstrap() {
   app.useWebSocketAdapter(new RedisIoAdapter(app));
   app.enableCors();
   app.use(helmet());
-  app.use(compression());
+  // app.use(compression());
   app.use(
     slowDown({
       windowMs: 10 * 60 * 1000,

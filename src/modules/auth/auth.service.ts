@@ -80,7 +80,7 @@ export class AuthService {
       link: '/email/verify/',
     };
 
-    // this.sendEmail(mailData);
+    this.sendEmail(mailData);
 
     return {
       message: 'REGISTRATION_SUCCESS',

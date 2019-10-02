@@ -3,12 +3,7 @@ import { verify as Jwtverify } from 'jsonwebtoken';
 import redis from 'redis';
 import 'dotenv/config';
 
-export const RefreshToken = createParamDecorator(async (redisData, req) => {
-  // if route is protected, there is a user set in auth.middleware
-  if (!!req.user) {
-    throw new HttpException('FORBIDDEN', HttpStatus.FORBIDDEN);
-  }
-  // in case a route is not protected, we still want to get the optional auth user from jwt
+export const RefreshToken = createParamDecorator(async (data, req) => {
   const token = req.headers.authorization ? (req.headers.authorization as string).split(' ') : null;
   if (token && token[1]) {
     try {
