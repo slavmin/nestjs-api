@@ -1,5 +1,5 @@
 import { Model, PaginateModel, Types } from 'mongoose';
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { RegisterDto, ServiceDto } from './dto/user.dto';
 import { UpdateDto } from './dto/update.dto';
@@ -12,8 +12,10 @@ import moment from 'moment';
 export class UsersService {
   constructor(@InjectModel('User') private readonly userModel: PaginateModel<User>) {}
 
+  private logger: Logger = new Logger('AuthService');
+
   private static sanitizeUser(user: User) {
-    return _.pick(user, ['id', 'uid', 'name', 'email', 'role', 'verified', 'blocked', 'country', 'language']);
+    return _.pick(user, ['id', 'uuid', 'name', 'email', 'role', 'verified', 'blocked', 'country', 'language']);
   }
 
   async getAll(page: any): Promise<any> {
@@ -40,7 +42,12 @@ export class UsersService {
 
   async create(registerDto: RegisterDto) {
     const createdUser = new this.userModel(registerDto);
-    await createdUser.save();
+    try {
+      await createdUser.save();
+    } catch (error) {
+      this.logger.log(error);
+      throw new HttpException(error, HttpStatus.NOT_ACCEPTABLE);
+    }
     return this.getById(createdUser._id);
   }
 

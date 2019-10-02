@@ -64,7 +64,7 @@ export class CommonModule {
   constructor(@Inject(CACHE_MANAGER) private readonly cacheManager) {
     const client = cacheManager.store.getClient();
 
-    client.on('error', error => {
+    client.on('error', (error: any) => {
       this.logger.log(error);
     });
   }

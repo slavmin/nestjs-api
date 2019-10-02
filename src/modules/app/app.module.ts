@@ -6,7 +6,7 @@ import { CommonModule } from './../common/common.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ChatModule } from './../chat/chat.module';
-// import { AuthMiddleware } from './../../common/middleware/auth.middleware';
+import { AuthMiddleware } from './../../common/middleware/auth.middleware';
 
 @Module({
   imports: [CommonModule, ChatModule],
@@ -15,7 +15,7 @@ import { ChatModule } from './../chat/chat.module';
   exports: [AppModule],
 })
 export class AppModule {
-  // public configure(consumer: MiddlewareConsumer) {
-  //   consumer.apply(AuthMiddleware).forRoutes('/');
-  // }
+  public configure(consumer: MiddlewareConsumer) {
+    consumer.apply(AuthMiddleware).forRoutes('/');
+  }
 }

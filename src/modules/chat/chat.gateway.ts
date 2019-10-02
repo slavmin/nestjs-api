@@ -30,6 +30,10 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   }
 
   handleConnection(client: Socket) {
+    if (client.handshake.query.token) {
+      const decoded: any = Jwtverify(client.handshake.query.token, process.env.JWT_SECRET, { ignoreExpiration: true });
+      this.logger.log('User ID: ' + decoded.sub + ' Name: ' + decoded.name + ' connected');
+    }
     this.logger.log('new clent connected ' + client.id);
     this.totalUsers++;
     // Notify connected clients of current users
@@ -46,9 +50,9 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   @SubscribeMessage('message')
   async onMessage(client: Socket, message: { user: string; room: string; content: string }) {
     const event: string = 'message';
-    const decoded: any = Jwtverify(client.handshake.query.token, process.env.JWT_SECRET);
+    const decoded: any = Jwtverify(client.handshake.query.token, process.env.JWT_SECRET, { ignoreExpiration: true });
     // const cookie: any = CookieParse(client.handshake.headers.cookie);
-    // this.logger.log(cookie.token);
+    // this.logger.log(cookie.access_token);
     const mess: object = { user: { name: decoded.name }, content: message.content };
     // client.broadcast.to(message.room).emit(event, mess);
     this.wss.in(message.room).emit(event, mess);

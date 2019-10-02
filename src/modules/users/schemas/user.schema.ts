@@ -1,12 +1,12 @@
 import bcrypt from 'bcrypt';
-import uuid from 'uuid';
+import uuid from 'uuid/v4';
 import { Schema, HookNextFunction } from 'mongoose';
 import mongoosePaginate from 'mongoose-paginate-v2';
 import uniqueValidator from 'mongoose-unique-validator';
 
 export const UserSchema = new Schema(
   {
-    uid: {
+    uuid: {
       type: String,
       unique: true,
     },
@@ -28,20 +28,24 @@ export const UserSchema = new Schema(
     phone: {
       type: String,
       trim: true,
+      sparse: true,
     },
     country: {
       type: String,
       trim: true,
+      index: true,
     },
     language: {
       type: String,
       lowercase: true,
       trim: true,
+      index: true,
     },
     role: {
       type: String,
       enum: ['user', 'member', 'admin'],
       default: 'user',
+      index: true,
     },
     verification_code: {
       type: String,
@@ -92,7 +96,7 @@ UserSchema.pre('save', async function(next: HookNextFunction) {
    * Generate uuid
    */
   if (this.isNew) {
-    (this as any).uid = await uuid.v4();
+    (this as any).uuid = uuid();
   }
   /**
    * On every save, add the date
@@ -106,8 +110,8 @@ UserSchema.pre('save', async function(next: HookNextFunction) {
     if (!this.isModified('password')) {
       return next();
     }
-    const hashed = await bcrypt.hash((this as any).password, 10);
-    (this as any).password = hashed;
+    const hashedPass = await bcrypt.hash((this as any).password, 10);
+    (this as any).password = hashedPass;
     return next();
   } catch (err) {
     return next(err);
