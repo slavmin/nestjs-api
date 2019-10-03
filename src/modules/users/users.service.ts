@@ -129,7 +129,7 @@ export class UsersService {
       login_attempts: user.login_attempts,
       block_expires: user.block_expires,
       verification_code: user.verification_code,
-      verified: user.email_verified,
+      email_verified: user.email_verified,
       banned: user.banned,
       ban_expires: user.ban_expires,
     };

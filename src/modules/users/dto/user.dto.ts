@@ -26,10 +26,12 @@ export interface UpdateDto {
 
 export interface ServiceDto {
   verification_code?: string;
-  verified?: boolean;
+  email_verified?: boolean;
   password_reset_token?: string;
   password_reset_expires?: string;
   login_attempts?: number;
   blocked?: boolean;
   block_expires?: any;
+  banned?: boolean;
+  ban_expires?: any;
 }
