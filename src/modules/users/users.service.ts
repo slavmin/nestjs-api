@@ -186,9 +186,13 @@ export class UsersService {
     return true;
   }
 
-  async setVerified(tokenId: string) {
+  async setVerified(tokenId: string, verificationType: string) {
     const user = await this.userModel.findOne({ verification_code: tokenId }).exec();
-    const data = { verification_code: null, email_verified: true };
+    let data = { verification_code: null, email_verified: true };
+
+    if (verificationType === 'phone') {
+      data = { verification_code: null, email_verified: true };
+    }
 
     if (!user) {
       throw new HttpException('NOT_FOUND', HttpStatus.NOT_FOUND);

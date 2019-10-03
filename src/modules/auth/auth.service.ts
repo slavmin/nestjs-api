@@ -136,12 +136,14 @@ export class AuthService {
     return { accessToken, refreshToken, expiresIn };
   }
 
-  async getVerificationToken(tokenId: string): Promise<any> {
-    const isVerified = await this.usersService.setVerified(tokenId);
+  async getVerificationToken(tokenId: string, verificationType: string): Promise<any> {
+    const isVerified = await this.usersService.setVerified(tokenId, verificationType);
     if (isVerified) {
-      throw new HttpException('VERIFICATION_SUCCESS', HttpStatus.OK);
+      return {
+        message: 'VERIFICATION_SUCCESS',
+      };
     } else {
-      throw new HttpException('VERIFICATION_FAILED', HttpStatus.OK);
+      throw new HttpException('VERIFICATION_FAILED', HttpStatus.BAD_REQUEST);
     }
   }
 
@@ -189,7 +191,9 @@ export class AuthService {
       if (!user) {
         throw new HttpException('RESET_PASSWORD_FAILED', HttpStatus.BAD_REQUEST);
       } else {
-        throw new HttpException('RESET_PASSWORD_SUCCESS', HttpStatus.OK);
+        return {
+          message: 'RESET_PASSWORD_SUCCESS',
+        };
       }
     } else {
       user = await this.usersService.update(user.id, {

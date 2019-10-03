@@ -19,7 +19,7 @@ export class AuthMiddleware implements NestMiddleware {
         const cachedData = await this.getTokenFromStore(decoded);
         req.user = cachedData.user;
       } catch (err) {
-        this.logger.log('AuthMiddleware: ' + err);
+        this.logger.error('AuthMiddleware: ' + err);
       }
     }
     // debug('Request...' + JSON.stringify(req.user));

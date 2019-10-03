@@ -72,8 +72,9 @@ export class AuthController {
   }
 
   @Post('verify/:token')
-  async setVerify(@Param('token') tokenId: string) {
-    return await this.authService.getVerificationToken(tokenId);
+  async setVerify(@Param('token') tokenId: string, @Body() body: any) {
+    const verificationType = body.type ? body.type : 'email';
+    return await this.authService.getVerificationToken(tokenId, verificationType);
   }
 
   @Post('password/mail')
