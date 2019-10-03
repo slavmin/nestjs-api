@@ -14,7 +14,7 @@ export class UsersService {
 
   private logger: Logger = new Logger('AuthService');
 
-  private static sanitizeUser(user: User) {
+  private static sanitizeOutput(user: User) {
     return _.pick(user, [
       'id',
       'uuid',
@@ -41,15 +41,15 @@ export class UsersService {
     return res;
   }
 
-  async getOne(args: object): Promise<any> {
+  async getOne(args: object): Promise<any | null> {
     const user = await this.userModel.findOne(args).exec();
-    return user ? UsersService.sanitizeUser(user) : null;
+    return user ? UsersService.sanitizeOutput(user) : null;
   }
 
-  async getById(id: string): Promise<any> {
+  async getById(id: string): Promise<any | null> {
     UsersService.isIdValid(id);
     const user = await this.userModel.findById(id).exec();
-    return user ? UsersService.sanitizeUser(user) : null;
+    return user ? UsersService.sanitizeOutput(user) : null;
   }
 
   async create(registerDto: RegisterDto) {

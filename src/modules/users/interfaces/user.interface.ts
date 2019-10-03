@@ -21,4 +21,6 @@ export interface User extends Document {
   readonly block_expires?: string;
   readonly banned?: boolean;
   readonly ban_expires?: string;
+  readonly created_at: Date;
+  readonly updated_at: Date;
 }

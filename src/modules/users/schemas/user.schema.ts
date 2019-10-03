@@ -110,6 +110,14 @@ export const UserSchema = new Schema(
   },
 );
 
+UserSchema.set('toJSON', {
+  virtuals: true,
+  transform(doc, ret) {
+    ret.id = ret._id;
+    delete ret._id;
+  },
+});
+
 UserSchema.pre('save', async function(next: HookNextFunction) {
   /**
    * Generate uuid

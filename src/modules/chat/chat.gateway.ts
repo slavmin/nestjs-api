@@ -64,7 +64,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   @SubscribeMessage('join')
   handleRoomJoin(client: Socket, room: string) {
     client.join(room);
-    this.logger.log('client ' + client.id + ' joined ' + room);
+    this.logger.log('client ' + client.id + ' joined room ' + room);
 
     this.wss.in(room).clients((err, clients) => {
       this.wss.in(room).emit('room_users', clients.length);
@@ -77,7 +77,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   @SubscribeMessage('leave')
   handleRoomLeave(client: Socket, room: string) {
     client.leave(room);
-    this.logger.log('client ' + client.id + ' left ' + room);
+    this.logger.log('client ' + client.id + ' left room ' + room);
 
     this.wss.in(room).clients((err, clients) => {
       this.wss.in(room).emit('room_users', clients.length);

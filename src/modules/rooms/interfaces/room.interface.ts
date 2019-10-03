@@ -1,14 +1,19 @@
 import { Document } from 'mongoose';
 import { Message } from './message.interface';
 import { User } from '../../users/interfaces/user.interface';
+import { Tag } from '../../tags/interfaces/tag.interface';
 
 export interface Room extends Document {
-  name: string;
+  readonly id: string;
+  readonly uuid: string;
+  readonly owner: User;
+  readonly name: string;
   description?: string;
-  owner: User;
-  is_published: boolean;
-  is_private: boolean;
+  tags?: Tag[];
+  categories?: [];
+  likes?: User[];
+  followers: User[];
   messages?: Message[];
-  created_at: Date;
-  updated_at: Date;
+  readonly created_at: Date;
+  readonly updated_at: Date;
 }

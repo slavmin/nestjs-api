@@ -1,28 +1,59 @@
-import { Controller, Request, Get, HttpStatus, HttpException } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  Post,
+  Body,
+  UseGuards,
+  Request,
+  HttpException,
+  HttpStatus,
+  Patch,
+} from '@nestjs/common';
 import { RoomsService } from './rooms.service';
 import { Room } from './interfaces/room.interface';
+import { ValidateObjectId } from './../../common/pipes/validate-object-id.pipe';
+import { Roles } from './../../common/decorators/roles.decorator';
+import { RolesGuard } from './../../common/guards/roles.guard';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('rooms')
 export class RoomsController {
   constructor(private readonly roomsService: RoomsService) {}
 
   @Get()
-  async index(): Promise<Room[]> {
+  async findAll(): Promise<Room[]> {
     return await this.roomsService.getAll();
   }
 
   @Get(':id')
-  async show(@Request() req: any): Promise<Room> {
-    const id = req.params.id;
-    if (!id) {
-      throw new HttpException('ID parameter is missing', HttpStatus.BAD_REQUEST);
-    }
-
-    const room = await this.roomsService.getById(id);
+  async findOne(@Param('id', ValidateObjectId) roomId: string): Promise<Partial<Room>> {
+    const room = await this.roomsService.getById(roomId);
     if (!room) {
-      throw new HttpException(`The room with the id: ${id} does not exists`, HttpStatus.BAD_REQUEST);
+      throw new HttpException('NOT_FOUND', HttpStatus.NOT_FOUND);
     }
-
     return room;
+  }
+
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles('member')
+  @Post()
+  async create(@Body() createDto: Room, @Request() req: any): Promise<Partial<Room>> {
+    return await this.roomsService.create(createDto, req.user);
+  }
+
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles('member')
+  @Patch(':id')
+  async update(
+    @Param('id', ValidateObjectId) roomId: string,
+    @Body() createDto: Room,
+    @Request() req: any,
+  ): Promise<Partial<Room>> {
+    const room = await this.roomsService.getById(roomId);
+    if (room.owner.id !== req.user.id) {
+      throw new HttpException('FORBIDDEN', HttpStatus.FORBIDDEN);
+    }
+    return await this.roomsService.update(roomId, createDto);
   }
 }

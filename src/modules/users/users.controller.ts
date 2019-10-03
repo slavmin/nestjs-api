@@ -51,7 +51,7 @@ export class UsersController {
   // }
 
   @Patch(':id')
-  async update(@Request() req: any, @Param('id') userId: string, @Body() data: UpdateDto) {
+  async update(@Param('id', ValidateObjectId) userId: string, @Body() data: UpdateDto, @Request() req: any) {
     if (userId !== req.user.id) {
       throw new HttpException('FORBIDDEN', HttpStatus.FORBIDDEN);
     }
