@@ -30,6 +30,18 @@ export const UserSchema = new Schema(
       trim: true,
       sparse: true,
     },
+    role: {
+      type: String,
+      enum: ['user', 'member', 'moderator', 'admin'],
+      default: 'user',
+      index: true,
+    },
+    status: {
+      type: String,
+      enum: ['wood', 'bronze', 'silver', 'cold', 'platinum', 'diamond'],
+      default: 'wood',
+      index: true,
+    },
     country: {
       type: String,
       trim: true,
@@ -41,17 +53,15 @@ export const UserSchema = new Schema(
       trim: true,
       index: true,
     },
-    role: {
-      type: String,
-      enum: ['user', 'member', 'admin'],
-      default: 'user',
-      index: true,
-    },
     verification_code: {
       type: String,
       default: null,
     },
-    verified: {
+    email_verified: {
+      type: Boolean,
+      default: false,
+    },
+    phone_verified: {
       type: Boolean,
       default: false,
     },
@@ -78,6 +88,15 @@ export const UserSchema = new Schema(
       default: false,
     },
     block_expires: {
+      type: Date,
+      default: Date.now,
+      select: false,
+    },
+    banned: {
+      type: Boolean,
+      default: false,
+    },
+    ban_expires: {
       type: Date,
       default: Date.now,
       select: false,

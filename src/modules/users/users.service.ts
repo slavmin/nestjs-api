@@ -15,7 +15,19 @@ export class UsersService {
   private logger: Logger = new Logger('AuthService');
 
   private static sanitizeUser(user: User) {
-    return _.pick(user, ['id', 'uuid', 'name', 'email', 'role', 'verified', 'blocked', 'country', 'language']);
+    return _.pick(user, [
+      'id',
+      'uuid',
+      'name',
+      'email',
+      'role',
+      'status',
+      'email_verified',
+      'blocked',
+      'banned',
+      'country',
+      'language',
+    ]);
   }
 
   async getAll(page: any): Promise<any> {
@@ -97,7 +109,16 @@ export class UsersService {
   async loginAttempt(email: string, password: string) {
     const user = await this.userModel
       .findOne({ email })
-      .select(['email', 'blocked', 'login_attempts', 'block_expires', 'verification_code', 'verified'])
+      .select([
+        'email',
+        'verification_code',
+        'email_verified',
+        'login_attempts',
+        'blocked',
+        'block_expires',
+        'banned',
+        'ban_expires',
+      ])
       .exec();
     if (!user) {
       throw new HttpException('NOT_FOUND', HttpStatus.NOT_FOUND);
@@ -108,7 +129,9 @@ export class UsersService {
       login_attempts: user.login_attempts,
       block_expires: user.block_expires,
       verification_code: user.verification_code,
-      verified: user.verified,
+      verified: user.email_verified,
+      banned: user.banned,
+      ban_expires: user.ban_expires,
     };
 
     const isMatch = await this.checkPassword(user.email, password, serviceData);
@@ -165,7 +188,7 @@ export class UsersService {
 
   async setVerified(tokenId: string) {
     const user = await this.userModel.findOne({ verification_code: tokenId }).exec();
-    const data = { verification_code: null, verified: true };
+    const data = { verification_code: null, email_verified: true };
 
     if (!user) {
       throw new HttpException('NOT_FOUND', HttpStatus.NOT_FOUND);
@@ -190,7 +213,7 @@ export class UsersService {
         await this.userModel.updateOne({ _id: user._id }, data);
         break;
       case 'verifyEmail':
-        const isVerified = user.verified;
+        const isVerified = user.email_verified;
         if (isVerified) {
           throw new HttpException('ALLREADY_VERIFIED', HttpStatus.OK);
         }

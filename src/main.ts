@@ -19,6 +19,7 @@ import { RedisIoAdapter } from './common/adapters/redis-io.adapter';
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   // const app = await NestFactory.create(AppModule, new ExpressAdapter(server));
+  // app.enableShutdownHooks();
   app.useWebSocketAdapter(new RedisIoAdapter(app));
   app.enableCors();
   app.use(helmet());

@@ -65,7 +65,7 @@ export class CommonModule {
     const client = cacheManager.store.getClient();
 
     client.on('error', (error: any) => {
-      this.logger.log(error);
+      this.logger.error(error);
     });
   }
 }

@@ -7,9 +7,11 @@ export interface User extends Document {
   readonly email: string;
   readonly password: string;
   readonly role?: string;
+  readonly status?: string;
   readonly verification_code?: string;
-  readonly verified?: boolean;
+  readonly email_verified?: boolean;
   readonly phone?: string;
+  readonly phone_verified?: boolean;
   readonly language?: string;
   readonly country?: string;
   readonly password_reset_token?: string;
@@ -17,4 +19,6 @@ export interface User extends Document {
   readonly login_attempts?: number;
   readonly blocked?: boolean;
   readonly block_expires?: string;
+  readonly banned?: boolean;
+  readonly ban_expires?: string;
 }
