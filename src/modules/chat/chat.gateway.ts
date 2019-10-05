@@ -79,7 +79,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     client.join(room);
     this.logger.log('client ' + client.id + ' joined room ' + room);
 
-    this.wss.in(room).clients((err: any, clients: { length: any; }) => {
+    this.wss.in(room).clients((err: any, clients: { length: any }) => {
       this.wss.in(room).emit('room_users', clients.length);
     });
     // Send welcome messages to the connected user
@@ -94,7 +94,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     client.leave(room);
     this.logger.log('client ' + client.id + ' left room ' + room);
 
-    this.wss.in(room).clients((err: any, clients: { length: any; }) => {
+    this.wss.in(room).clients((err: any, clients: { length: any }) => {
       this.wss.in(room).emit('room_users', clients.length);
     });
 

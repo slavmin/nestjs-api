@@ -1,9 +1,10 @@
 import { Module, Global, CacheModule, Inject, CACHE_MANAGER, Logger } from '@nestjs/common';
-import { APP_INTERCEPTOR } from '@nestjs/core';
+import { APP_INTERCEPTOR, APP_GUARD } from '@nestjs/core';
 import { ConfigModule, ConfigService } from '../config';
 import { DatabaseModule } from '../database/database.module';
 // import { UsersModule, UsersService } from '../users';
 import { AuthModule } from '../auth';
+import { RolesGuard } from './../../common/guards/roles.guard';
 import { MailerModule, PugAdapter, HandlebarsAdapter } from '@nest-modules/mailer';
 import { LoggingInterceptor } from './../../common/interceptors/logging.interceptor';
 import { ErrorsInterceptor } from './../../common/interceptors/exception.interceptor';
@@ -54,6 +55,10 @@ import { join } from 'path';
     {
       provide: APP_INTERCEPTOR,
       useClass: LoggingInterceptor,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
     },
   ],
   exports: [ConfigModule, DatabaseModule, AuthModule, CacheModule, MailerModule],

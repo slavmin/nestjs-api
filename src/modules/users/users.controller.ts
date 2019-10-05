@@ -20,11 +20,10 @@ import { UsersService } from './users.service';
 import { User } from './interfaces/user.interface';
 import { AuthGuard } from '@nestjs/passport';
 import { Roles } from './../../common/decorators/roles.decorator';
-import { RolesGuard } from './../../common/guards/roles.guard';
 import { ValidateObjectId } from './../../common/pipes/validate-object-id.pipe';
 
 @Controller('users')
-@UseGuards(AuthGuard('jwt'), RolesGuard)
+@UseGuards(AuthGuard('jwt'))
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 

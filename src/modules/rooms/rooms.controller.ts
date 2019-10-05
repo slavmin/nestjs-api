@@ -14,7 +14,6 @@ import { RoomsService } from './rooms.service';
 import { Room } from './interfaces/room.interface';
 import { ValidateObjectId } from './../../common/pipes/validate-object-id.pipe';
 import { Roles } from './../../common/decorators/roles.decorator';
-import { RolesGuard } from './../../common/guards/roles.guard';
 import { AuthGuard } from '@nestjs/passport';
 
 @Controller('rooms')
@@ -35,14 +34,14 @@ export class RoomsController {
     return room;
   }
 
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @UseGuards(AuthGuard('jwt'))
   @Roles('member')
   @Post()
   async create(@Body() createDto: Room, @Request() req: any): Promise<Partial<Room>> {
     return await this.roomsService.create(createDto, req.user);
   }
 
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @UseGuards(AuthGuard('jwt'))
   @Roles('member')
   @Patch(':id')
   async update(
