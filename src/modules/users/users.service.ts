@@ -47,7 +47,7 @@ export class UsersService {
   }
 
   async getById(id: string): Promise<any | null> {
-    UsersService.isIdValid(id);
+    // UsersService.isIdValid(id);
     const user = await this.userModel.findById(id).exec();
     return user ? UsersService.sanitizeOutput(user) : null;
   }
@@ -64,7 +64,7 @@ export class UsersService {
   }
 
   async update(id: string, data: Partial<UpdateDto>) {
-    UsersService.isIdValid(id);
+    // UsersService.isIdValid(id);
     try {
       const outData = _.pickBy(_.pick(data, ['country', 'language', 'password', 'password_reset_token']));
       if (!_.isEmpty(data.password)) {
@@ -83,7 +83,7 @@ export class UsersService {
   }
 
   async delete(id: string) {
-    UsersService.isIdValid(id);
+    // UsersService.isIdValid(id);
     const result = await this.userModel.deleteOne({ _id: id }).exec();
     if (result.n === 0) {
       throw new HttpException('NOT_FOUND', HttpStatus.NOT_FOUND);

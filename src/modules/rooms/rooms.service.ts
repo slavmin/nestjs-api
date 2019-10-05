@@ -45,7 +45,7 @@ export class RoomsService {
   }
 
   async getById(id: string): Promise<Partial<Room> | null> {
-    RoomsService.isIdValid(id);
+    // RoomsService.isIdValid(id);
     const room = await this.roomModel
       .findById(id)
       .populate({ path: 'owner', select: 'id uuid name role status country language' })
@@ -59,13 +59,13 @@ export class RoomsService {
   }
 
   async update(id: string, newValue: Room): Promise<Partial<Room> | null> {
-    RoomsService.isIdValid(id);
+    // RoomsService.isIdValid(id);
     const room = await this.roomModel.findByIdAndUpdate(id, newValue).exec();
     return room ? await this.getById(room.id) : null;
   }
 
   async delete(id: string): Promise<Room | null> {
-    RoomsService.isIdValid(id);
+    // RoomsService.isIdValid(id);
     return await this.roomModel.findByIdAndRemove(id).exec();
   }
 
