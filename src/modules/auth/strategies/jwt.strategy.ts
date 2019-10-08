@@ -1,19 +1,19 @@
 import { ExtractJwt, Strategy, VerifiedCallback } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
 import { Injectable, CACHE_MANAGER, Inject, Logger, HttpException, HttpStatus } from '@nestjs/common';
-import { UsersService } from './../../users/users.service';
 import { ConfigService } from '../../config';
 import { JwtPayload } from '../dto/auth.dto';
-import { AuthService } from '../auth.service';
+// import { UsersService } from './../../users/users.service';
+// import { AuthService } from '../auth.service';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   private logger: Logger = new Logger('JwtStrategy');
 
   constructor(
-    private readonly usersService: UsersService,
     private readonly configService: ConfigService,
-    private readonly authService: AuthService,
+    // private readonly authService: AuthService,
+    // private readonly usersService: UsersService,
     @Inject(CACHE_MANAGER) private readonly cacheManager,
   ) {
     super({
@@ -39,10 +39,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     const cacheClient = this.cacheManager.store.getClient();
     return await new Promise((resolve, reject) => {
       cacheClient.get(payload.sub, (error: any, response: string) => {
-        if (error) {
-          reject(error);
-        }
-        resolve(JSON.parse(response));
+        error ? reject(error) : resolve(JSON.parse(response));
       });
     });
   }

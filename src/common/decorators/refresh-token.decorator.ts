@@ -9,23 +9,22 @@ export const RefreshToken = createParamDecorator(async (data, req) => {
     try {
       const decoded: any = Jwtverify(token[1], process.env.JWT_SECRET, { ignoreExpiration: false });
       const cacheClient = redis.createClient();
+
       const redisData: any = await new Promise((resolve, reject) => {
         cacheClient.get(decoded.sub, (error: any, response: string) => {
-          if (error) {
-            reject(error);
-          }
-          resolve(JSON.parse(response));
+          error ? reject(error) : resolve(JSON.parse(response));
         });
       });
 
       const dataTtl: any = await new Promise((resolve, reject) => {
         cacheClient.ttl(decoded.sub, (error: any, response: number) => {
-          if (error) {
-            reject(error);
-          }
-          resolve(response);
+          error ? reject(error) : resolve(response);
         });
       });
+
+      if (decoded.jti !== redisData.refreshTokenId) {
+        throw new HttpException('NOT_VALID_REFRESH_TOKEN', HttpStatus.BAD_REQUEST);
+      }
 
       const expIn = parseInt(process.env.JWT_REFRESH_EXPIRATION, 10);
       const atExpire = parseInt(process.env.JWT_EXPIRATION, 10);
@@ -36,11 +35,7 @@ export const RefreshToken = createParamDecorator(async (data, req) => {
         throw new HttpException('TOKEN_NOT_EXPIRED', HttpStatus.BAD_REQUEST);
       }
 
-      if (decoded.jti === redisData.refreshTokenId) {
-        return redisData;
-      } else {
-        throw new HttpException('NOT_VALID_REFRESH_TOKEN', HttpStatus.BAD_REQUEST);
-      }
+      return redisData;
     } catch (err) {
       if (err.name === 'TokenExpiredError') {
         throw new HttpException('TOKEN_EXPIRED', HttpStatus.UNAUTHORIZED);
