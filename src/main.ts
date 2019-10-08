@@ -7,7 +7,7 @@ import 'dotenv/config';
 import helmet from 'helmet';
 // import compression from 'compression';
 import slowDown from 'express-slow-down';
-// import rateLimit from 'express-rate-limit';
+import rateLimit from 'express-rate-limit';
 
 import { AppModule } from './modules/app/app.module';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
@@ -15,6 +15,12 @@ import { RedisIoAdapter } from './common/adapters/redis-io.adapter';
 // import { ValidationPipe } from './common/pipes/validation.pipe';
 
 // const server = Express();
+
+const requestLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour window
+  max: 10, // start blocking after 10 requests
+  message: 'TOO_MANY_REQUESTS',
+});
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -24,6 +30,7 @@ async function bootstrap() {
   app.enableCors();
   app.use(helmet());
   // app.use(compression());
+  app.use('/api/auth/token/refresh', requestLimiter);
   app.use(
     slowDown({
       windowMs: 10 * 60 * 1000,

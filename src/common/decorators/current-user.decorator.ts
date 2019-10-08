@@ -1,6 +1,6 @@
 import { createParamDecorator, HttpException, HttpStatus } from '@nestjs/common';
 import { verify as Jwtverify } from 'jsonwebtoken';
-import 'dotenv/config';
+// import 'dotenv/config';
 
 export const CurrentUser = createParamDecorator(async (data, req) => {
   // if route is protected, there is a user set in auth.middleware
@@ -15,7 +15,7 @@ export const CurrentUser = createParamDecorator(async (data, req) => {
       return decoded.sub;
     } catch (err) {
       if (err.name === 'TokenExpiredError') {
-        throw new HttpException('TOKEN_EXPIRED_ERROR', HttpStatus.UNAUTHORIZED);
+        throw new HttpException('TOKEN_EXPIRED', HttpStatus.UNAUTHORIZED);
       }
       throw new HttpException('TOKEN_ERROR', HttpStatus.UNAUTHORIZED);
     }

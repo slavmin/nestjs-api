@@ -11,8 +11,9 @@ import { Logger } from '@nestjs/common';
 import { verify as Jwtverify } from 'jsonwebtoken';
 import { RoomsService } from '../rooms/rooms.service';
 import { parse as CookieParse } from 'cookie';
-import 'dotenv/config';
-import { Observable } from 'rxjs';
+// import 'dotenv/config';
+import { Observable, ReplaySubject } from 'rxjs';
+import { delay } from 'rxjs/operators';
 
 @WebSocketGateway({ namespace: '/chat' })
 export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
@@ -67,11 +68,24 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     const decoded: any = Jwtverify(cookie.access_token, process.env.JWT_SECRET, { ignoreExpiration: true });
     // this.logger.log(cookie.access_token);
     const mess: object = { user: { name: decoded.name }, content: message.content };
+    const room: string = message.room;
+    // this.messages.push(room);
     // client.broadcast.to(message.room).emit(event, mess);
-    this.wss.in(message.room).emit(event, mess);
-    this.messages[message.room].push(mess);
+    // this.wss.in(message.room).emit(event, mess);
+    // this.messages[message.room].push(mess);
 
-    return Observable.create(observer => observer.next({ event, data: mess }));
+    return Observable.create(observer => observer.next({ event, mess }))
+      .pipe(delay(100))
+      .subscribe((data: { event: string | symbol; mess: object }) => {
+        // this.messages[room].push(data.data);
+        this.wss.in(room).emit(data.event, data.mess);
+      });
+
+    // const stream$ = new ReplaySubject(10);
+    // stream$.next({ event, mess });
+    // stream$.subscribe((data: { event: string | symbol; mess: object }) => {
+    //   this.wss.in(room).emit(data.event, data.mess);
+    // });
   }
 
   @SubscribeMessage('join')
