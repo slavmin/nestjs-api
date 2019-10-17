@@ -7,8 +7,8 @@ import { AuthModule } from '../auth';
 import { RolesGuard } from './../../common/guards/roles.guard';
 import { MailerModule, PugAdapter, HandlebarsAdapter } from '@nest-modules/mailer';
 import { LoggingInterceptor } from './../../common/interceptors/logging.interceptor';
-import { ErrorsInterceptor } from './../../common/interceptors/exception.interceptor';
-import { TransformInterceptor } from './../../common/interceptors/transform.interceptor';
+// import { ErrorsInterceptor } from './../../common/interceptors/exception.interceptor';
+// import { TransformInterceptor } from './../../common/interceptors/transform.interceptor';
 import * as redisStore from 'cache-manager-redis-store';
 import { join } from 'path';
 
@@ -61,7 +61,7 @@ import { join } from 'path';
       useClass: RolesGuard,
     },
   ],
-  exports: [ConfigModule, DatabaseModule, AuthModule, CacheModule, MailerModule],
+  exports: [ConfigModule, DatabaseModule, CacheModule, AuthModule, MailerModule],
 })
 export class CommonModule {
   private logger: Logger = new Logger('CommonModule');

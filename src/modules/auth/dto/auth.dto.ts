@@ -15,5 +15,6 @@ export interface SendMailDto {
 export interface JwtPayload {
   sub: string;
   jti: string;
+  name?: string;
   scope: string;
 }

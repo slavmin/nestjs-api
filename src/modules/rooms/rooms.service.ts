@@ -2,7 +2,7 @@ import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 
-import { UsersService } from '../users';
+// import { UsersService } from '../users';
 import { Room } from './interfaces/room.interface';
 // import { Message } from './interfaces/message.interface';
 import { User } from './../users/interfaces/user.interface';
@@ -10,10 +10,7 @@ import * as _ from 'lodash';
 
 @Injectable()
 export class RoomsService {
-  constructor(
-    @InjectModel('Room') private readonly roomModel: Model<Room>,
-    private readonly usersService: UsersService,
-  ) {}
+  constructor(@InjectModel('Room') private readonly roomModel: Model<Room>) {}
 
   private static sanitizeOutput(room: Room) {
     return _.pick(room, [

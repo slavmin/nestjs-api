@@ -12,16 +12,20 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './../auth/auth.service';
 import { UsersService } from './../users/users.service';
+import { JwtAuthService } from './jwt/jwt-auth.service';
 import { RegisterDto, LoginDto, EmailDto, ResetPassDto } from './../auth/dto';
 import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from './../../common/guards/roles.guard';
 import { Roles } from './../../common/decorators/roles.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
-import { RefreshToken } from '../../common/decorators/refresh-token.decorator';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService, private readonly usersService: UsersService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly usersService: UsersService,
+    private readonly jwtAuthService: JwtAuthService,
+  ) {}
 
   @Post('signin')
   async login(@CurrentUser('id') userId: string, @Body() loginDto: LoginDto) {
@@ -50,11 +54,12 @@ export class AuthController {
     return req.user;
   }
 
+  @UseGuards(AuthGuard('jwt-refresh'))
   @Get('token/refresh')
-  async refreshToken(@RefreshToken() data: any): Promise<any> {
-    const user = await this.usersService.getById(data.user.id);
+  async refreshToken(@Request() req: any): Promise<any> {
+    const user = await this.usersService.getById(req.user.id);
     if (user && !user.blocked) {
-      const { accessToken, refreshToken, expiresIn } = await this.authService.generateToken(user);
+      const { accessToken, refreshToken, expiresIn } = await this.jwtAuthService.generateToken(user);
       return {
         access_token: accessToken,
         refresh_token: refreshToken,
@@ -62,7 +67,6 @@ export class AuthController {
         user,
       };
     }
-
     throw new HttpException('FORBIDDEN', HttpStatus.FORBIDDEN);
   }
 

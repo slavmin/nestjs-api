@@ -1,11 +1,12 @@
 import { Injectable, HttpException, HttpStatus, CACHE_MANAGER, Inject, Logger } from '@nestjs/common';
 import { ConfigService } from '../config/';
-import { JwtService } from '@nestjs/jwt';
-import { MailerService } from '@nest-modules/mailer';
 import { UsersService } from '../users/users.service';
-import { User } from '../users/interfaces/user.interface';
+// import { User } from '../users/interfaces/user.interface';
+// import { JwtService } from '@nestjs/jwt';
+import { JwtAuthService } from './jwt/jwt-auth.service';
 import { RegisterDto, LoginDto, EmailDto, ResetPassDto, SendMailDto } from './dto';
-import { Provider } from './strategies/providers';
+// import { Provider } from './strategies/providers';
+import { MailerService } from '@nest-modules/mailer';
 import crypto from 'crypto';
 import uuid from 'uuid';
 import moment from 'moment';
@@ -16,7 +17,7 @@ export class AuthService {
     @Inject(CACHE_MANAGER) private readonly cacheManager,
     private readonly configService: ConfigService,
     private readonly usersService: UsersService,
-    private readonly jwtService: JwtService,
+    private readonly jwtAuthService: JwtAuthService,
     private readonly mailerService: MailerService,
   ) {}
 
@@ -34,7 +35,7 @@ export class AuthService {
       throw new HttpException('INVALID_CREDENTIALS', HttpStatus.BAD_REQUEST);
     }
 
-    const { accessToken, refreshToken, expiresIn } = await this.generateToken(user);
+    const { accessToken, refreshToken, expiresIn } = await this.jwtAuthService.generateToken(user);
 
     return {
       access_token: accessToken,
@@ -99,41 +100,6 @@ export class AuthService {
     return {
       message: 'LOGOUT_SUCCESS',
     };
-  }
-
-  async generateToken(user: User): Promise<any> {
-    const accessTokenId = await AuthService.makeTokenId();
-    const accessPayload = { sub: user.id, name: user.name, jti: accessTokenId, scope: 'profile' };
-
-    const refreshTokenId = await AuthService.makeTokenId();
-    const refreshPayload = { sub: user.id, jti: refreshTokenId };
-
-    const expiresIn = parseInt(this.configService.get('JWT_REFRESH_EXPIRATION'), 10);
-
-    const accessToken = this.jwtService.sign(accessPayload, {
-      header: { jti: accessTokenId },
-      expiresIn: parseInt(this.configService.get('JWT_EXPIRATION'), 10),
-    });
-    const refreshToken = this.jwtService.sign(refreshPayload, {
-      header: { jti: refreshTokenId },
-      expiresIn: parseInt(this.configService.get('JWT_REFRESH_EXPIRATION'), 10),
-    });
-
-    const cacheClient = await this.cacheManager.store.getClient();
-    await cacheClient.set(
-      user.id,
-      JSON.stringify({ accessTokenId, refreshTokenId, user }),
-      'EX',
-      this.configService.get('JWT_REFRESH_EXPIRATION'),
-      (err: any) => {
-        if (err) {
-          this.logger.log(err);
-          throw new HttpException('SERVICE_UNAVAILABLE', HttpStatus.SERVICE_UNAVAILABLE);
-        }
-      },
-    );
-
-    return { accessToken, refreshToken, expiresIn };
   }
 
   async getVerificationToken(tokenId: string, verificationType: string): Promise<any> {
@@ -251,25 +217,25 @@ export class AuthService {
       .digest('hex');
   }
 
-  async validateOAuthLogin(thirdPartyId: string, provider: Provider): Promise<any> {
-    try {
-      // You can add some registration logic here,
-      // to register the user using their thirdPartyId (in this case their googleId)
-      // let user: IUser = await this.usersService.findOneByThirdPartyId(thirdPartyId, provider);
+  // async validateOAuthLogin(thirdPartyId: string, provider: Provider): Promise<any> {
+  //   try {
+  //     // You can add some registration logic here,
+  //     // to register the user using their thirdPartyId (in this case their googleId)
+  //     // let user: IUser = await this.usersService.findOneByThirdPartyId(thirdPartyId, provider);
 
-      // if (!user)
-      // user = await this.usersService.registerOAuthUser(thirdPartyId, provider);
+  //     // if (!user)
+  //     // user = await this.usersService.registerOAuthUser(thirdPartyId, provider);
 
-      const tokenId = await AuthService.makeTokenId();
-      const payload = { sub: thirdPartyId, provider, jti: tokenId, scope: 'profile' };
+  //     const tokenId = await AuthService.makeTokenId();
+  //     const payload = { sub: thirdPartyId, provider, jti: tokenId, scope: 'profile' };
 
-      return {
-        access_token: this.jwtService.sign(payload, {
-          header: { jti: tokenId },
-        }),
-      };
-    } catch (err) {
-      throw new HttpException(err.message, HttpStatus.BAD_REQUEST);
-    }
-  }
+  //     return {
+  //       access_token: this.jwtService.sign(payload, {
+  //         header: { jti: tokenId },
+  //       }),
+  //     };
+  //   } catch (err) {
+  //     throw new HttpException(err.message, HttpStatus.BAD_REQUEST);
+  //   }
+  // }
 }

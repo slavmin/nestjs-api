@@ -16,6 +16,7 @@ import { RedisIoAdapter } from './common/adapters/redis-io.adapter';
 
 // const server = Express();
 
+// Refresh token route requests limiter
 const requestLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour window
   max: 10, // start blocking after 10 requests

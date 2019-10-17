@@ -2,7 +2,6 @@ import { Injectable, NestMiddleware, CACHE_MANAGER, Inject, Logger } from '@nest
 import { Request, Response, NextFunction } from 'express';
 import { ConfigService } from './../../modules/config';
 import { verify as Jwtverify } from 'jsonwebtoken';
-import { debug } from 'console';
 
 @Injectable()
 export class AuthMiddleware implements NestMiddleware {
@@ -19,10 +18,9 @@ export class AuthMiddleware implements NestMiddleware {
         const cachedData = await this.getTokenFromStore(decoded);
         req.user = cachedData.user;
       } catch (err) {
-        this.logger.error('AuthMiddleware: ' + err);
+        this.logger.error('AuthMiddleware: ' + err + 'Request ' + JSON.stringify(req.url));
       }
     }
-    // debug('Request...' + JSON.stringify(req.user));
     next();
   }
 
@@ -30,10 +28,7 @@ export class AuthMiddleware implements NestMiddleware {
     const cacheClient = this.cacheManager.store.getClient();
     return await new Promise((resolve, reject) => {
       cacheClient.get(payload.sub, (error: any, response: string) => {
-        if (error) {
-          reject(error);
-        }
-        resolve(JSON.parse(response));
+        error ? reject(error) : resolve(JSON.parse(response));
       });
     });
   }

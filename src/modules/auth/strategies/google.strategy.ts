@@ -17,13 +17,13 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     });
   }
 
-  async validate(request: any, accessToken: string, refreshToken: string, profile, done: any) {
-    try {
-      const jwt: string = await this.authService.validateOAuthLogin(profile.id, Provider.GOOGLE);
-      const user = { jwt };
-      done(null, user);
-    } catch (err) {
-      done(err, false);
-    }
-  }
+  // async validate(request: any, accessToken: string, refreshToken: string, profile, done: any) {
+  //   try {
+  //     const jwt: string = await this.authService.validateOAuthLogin(profile.id, Provider.GOOGLE);
+  //     const user = { jwt };
+  //     done(null, user);
+  //   } catch (err) {
+  //     done(err, false);
+  //   }
+  // }
 }

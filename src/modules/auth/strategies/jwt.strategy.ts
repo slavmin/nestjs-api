@@ -1,21 +1,13 @@
 import { ExtractJwt, Strategy, VerifiedCallback } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
-import { Injectable, CACHE_MANAGER, Inject, Logger, HttpException, HttpStatus } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { ConfigService } from '../../config';
 import { JwtPayload } from '../dto/auth.dto';
-// import { UsersService } from './../../users/users.service';
-// import { AuthService } from '../auth.service';
+import { JwtAuthService } from './../jwt/jwt-auth.service';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
-  private logger: Logger = new Logger('JwtStrategy');
-
-  constructor(
-    private readonly configService: ConfigService,
-    // private readonly authService: AuthService,
-    // private readonly usersService: UsersService,
-    @Inject(CACHE_MANAGER) private readonly cacheManager,
-  ) {
+  constructor(configService: ConfigService, private readonly jwtAuthService: JwtAuthService) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
@@ -24,23 +16,14 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   }
 
   async validate(payload: JwtPayload, done: VerifiedCallback) {
-    const data = await this.getTokenFromStore(payload).catch(err => {
+    const data = await this.jwtAuthService.getTokenFromStore(payload).catch(() => {
       throw new HttpException('UNAUTHORIZED', HttpStatus.UNAUTHORIZED);
     });
 
-    if (payload.jti === data.accessTokenId) {
-      return data ? done(null, data.user) : null;
+    if (payload.jti !== data.accessTokenId) {
+      throw new HttpException('TOKEN_NOT_VALID', HttpStatus.BAD_REQUEST);
     }
 
-    return null;
-  }
-
-  async getTokenFromStore(payload: JwtPayload): Promise<any> {
-    const cacheClient = this.cacheManager.store.getClient();
-    return await new Promise((resolve, reject) => {
-      cacheClient.get(payload.sub, (error: any, response: string) => {
-        error ? reject(error) : resolve(JSON.parse(response));
-      });
-    });
+    return data ? done(null, data.user) : null;
   }
 }
