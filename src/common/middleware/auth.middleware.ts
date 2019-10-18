@@ -1,35 +1,27 @@
-import { Injectable, NestMiddleware, CACHE_MANAGER, Inject, Logger } from '@nestjs/common';
+import { Injectable, NestMiddleware, Logger } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
-import { ConfigService } from './../../modules/config';
-import { verify as Jwtverify } from 'jsonwebtoken';
+import { JwtAuthService } from './../../modules/auth/jwt/jwt-auth.service';
+import { User } from './../../modules/users/interfaces/user.interface';
 
 @Injectable()
 export class AuthMiddleware implements NestMiddleware {
-  constructor(private readonly configService: ConfigService, @Inject(CACHE_MANAGER) private readonly cacheManager) {}
+  constructor(private readonly jwtAuthService: JwtAuthService) {}
 
   private logger: Logger = new Logger('AuthMiddleware');
 
   async use(req: Request, res: Response, next: NextFunction) {
-    const token = req.headers.authorization ? (req.headers.authorization as string).split(' ') : null;
+    const authHeader = req.headers.authorization;
+    const token = authHeader ? authHeader.substring(7, authHeader.length) : null;
 
-    if (token && token[1]) {
+    if (token) {
       try {
-        const decoded: any = Jwtverify(token[1], this.configService.get('JWT_SECRET'), { ignoreExpiration: true });
-        const cachedData = await this.getTokenFromStore(decoded);
-        req.user = cachedData.user;
+        const user: User = await this.jwtAuthService.verify(token, false, false, { ignoreExpiration: true });
+        // this.logger.log('User from jwtAuthService: ' + JSON.stringify(user));
+        req.user = user;
       } catch (err) {
-        this.logger.error('AuthMiddleware: ' + err + 'Request ' + JSON.stringify(req.url));
+        this.logger.error('Error: ' + err + 'Request ' + JSON.stringify(req.url));
       }
     }
     next();
-  }
-
-  async getTokenFromStore(payload: any): Promise<any> {
-    const cacheClient = this.cacheManager.store.getClient();
-    return await new Promise((resolve, reject) => {
-      cacheClient.get(payload.sub, (error: any, response: string) => {
-        error ? reject(error) : resolve(JSON.parse(response));
-      });
-    });
   }
 }

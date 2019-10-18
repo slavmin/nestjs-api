@@ -1,8 +1,8 @@
 import { Injectable, HttpStatus, HttpException, CACHE_MANAGER, Inject, Logger } from '@nestjs/common';
-import { UsersService } from '../../users/users.service';
-import { User } from '../../users/interfaces/user.interface';
-import { ConfigService } from '../../config';
-import { JwtPayload } from '../dto/auth.dto';
+import { UsersService } from './../../users/users.service';
+import { User } from './../../users/interfaces/user.interface';
+import { ConfigService } from './../../config';
+import { JwtPayload } from './../dto/auth.dto';
 import { WsException } from '@nestjs/websockets';
 import * as jwt from 'jsonwebtoken';
 import crypto from 'crypto';
@@ -25,9 +25,14 @@ export class JwtAuthService {
    * @param {boolean} isWs - True to handle WS exception instead of HTTP exception (default: false)
    * @param {boolean} isRefresh
    */
-  async verify(token: string, isRefresh: boolean = false, isWs: boolean = false): Promise<User | null> {
+  async verify(
+    token: string,
+    isRefresh: boolean = false,
+    isWs: boolean = false,
+    options: jwt.VerifyOptions = {},
+  ): Promise<User | null> {
     const jwtSecret = isRefresh ? this.configService.get('JWT_REFRESH_SECRET') : this.configService.get('JWT_SECRET');
-    const payload = jwt.verify(token, jwtSecret) as any;
+    const payload = jwt.verify(token, jwtSecret, options) as JwtPayload;
     const data = await this.getTokenFromStore(payload).catch(err => {
       if (isWs) {
         throw new WsException('UNAUTHORIZED');
