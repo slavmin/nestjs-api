@@ -8,6 +8,7 @@ import helmet from 'helmet';
 // import compression from 'compression';
 import slowDown from 'express-slow-down';
 import rateLimit from 'express-rate-limit';
+import { Request, Response } from 'express';
 
 import { AppModule } from './modules/app/app.module';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
@@ -20,7 +21,8 @@ import { RedisIoAdapter } from './common/adapters/redis-io.adapter';
 const requestLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour window
   max: 10, // start blocking after 10 requests
-  message: 'TOO_MANY_REQUESTS',
+  handler: (req: Request, res: Response) =>
+    res.status(429).send({ status: 429, error: 'TOO_MANY_REQUESTS', message: 'TOO_MANY_REQUESTS' }),
 });
 
 async function bootstrap() {
@@ -31,7 +33,6 @@ async function bootstrap() {
   app.enableCors();
   app.use(helmet());
   // app.use(compression());
-  app.use('/api/auth/token/refresh', requestLimiter);
   app.use(
     slowDown({
       windowMs: 10 * 60 * 1000,
@@ -40,6 +41,7 @@ async function bootstrap() {
     }),
   );
   app.setGlobalPrefix('api');
+  app.use('/api/auth/token/refresh', requestLimiter);
   app.useGlobalFilters(new HttpExceptionFilter());
   app.useGlobalPipes(new ValidationPipe({ disableErrorMessages: true }));
   await app.listen(process.env.APP_PORT || 4000);
