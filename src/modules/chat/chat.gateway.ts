@@ -9,7 +9,6 @@ import {
 } from '@nestjs/websockets';
 import { Socket, Server } from 'socket.io';
 import { Logger, UseGuards } from '@nestjs/common';
-import { AuthService } from '../auth/auth.service';
 import { JwtAuthService } from '../auth/jwt/jwt-auth.service';
 import { UsersService } from '../users/users.service';
 import { RoomsService } from '../rooms/rooms.service';
@@ -33,7 +32,6 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   ];
 
   constructor(
-    // private readonly authService: AuthService,
     private readonly jwtAuthService: JwtAuthService,
     private readonly usersService: UsersService,
     private readonly roomService: RoomsService,

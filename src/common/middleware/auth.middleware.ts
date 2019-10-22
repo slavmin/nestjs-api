@@ -19,7 +19,7 @@ export class AuthMiddleware implements NestMiddleware {
         // this.logger.log('User from jwtAuthService: ' + JSON.stringify(user));
         req.user = user;
       } catch (err) {
-        this.logger.error('Error: ' + err + 'Request ' + JSON.stringify(req.url));
+        // this.logger.error('Error: ' + err + 'Request ' + JSON.stringify(req.url));
       }
     }
     next();
