@@ -20,10 +20,6 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
       throw new HttpException('UNAUTHORIZED', HttpStatus.UNAUTHORIZED);
     });
 
-    if (payload.jti !== data.accessTokenId) {
-      throw new HttpException('TOKEN_NOT_VALID', HttpStatus.BAD_REQUEST);
-    }
-
     return data ? done(null, data.user) : null;
   }
 }
