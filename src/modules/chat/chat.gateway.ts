@@ -10,8 +10,8 @@ import {
 import { Socket, Server } from 'socket.io';
 import { Logger, UseGuards } from '@nestjs/common';
 import { JwtAuthService } from '../auth/jwt/jwt-auth.service';
-import { UsersService } from '../users/users.service';
-import { RoomsService } from '../rooms/rooms.service';
+// import { UsersService } from '../users/users.service';
+// import { RoomsService } from '../rooms/rooms.service';
 import { User } from './../users/interfaces/user.interface';
 import { parse as CookieParse } from 'cookie';
 
@@ -31,11 +31,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     { user: { name: this.rmessname }, content: 'Please, be kind and polite!' },
   ];
 
-  constructor(
-    private readonly jwtAuthService: JwtAuthService,
-    private readonly usersService: UsersService,
-    private readonly roomService: RoomsService,
-  ) {}
+  constructor(private readonly jwtAuthService: JwtAuthService) {}
 
   private logger: Logger = new Logger('ChatGateway');
 
@@ -44,25 +40,17 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   }
 
   async handleConnection(client: Socket) {
-    if (client.handshake.query.token) {
-      if (client.handshake.headers.cookie) {
-        const cookie: any = CookieParse(client.handshake.headers.cookie);
-        if (cookie && cookie.access_token) {
-          const decoded: any = await this.handleAuth(cookie);
-          this.logger.log('User ID: ' + decoded.id + ' Name: ' + decoded.name + ' connected as ' + client.id);
-          client.request.user = { id: decoded.id, name: decoded.name, sockets: { room: client.id } };
-          this.logger.log('Request user: ' + JSON.stringify(client.request.user));
-        }
-      }
+    const cookie: any = client.handshake.headers.cookie ? CookieParse(client.handshake.headers.cookie) : null;
+
+    if (cookie && cookie.access_token) {
+      const decoded: any = await this.handleAuth(cookie);
+      // this.logger.log('User ID: ' + decoded.id + ' Name: ' + decoded.name + ' connected as ' + client.id);
+      client.request.user = { id: decoded.id, name: decoded.name, socket: client.id };
+      // this.logger.log('Connected user: ' + JSON.stringify(client.request.user));
     } else {
-      client.request.user = { id: 'gest' };
+      client.request.user = { id: client.id, name: 'guest' };
       this.logger.log('Anonimos client connected ' + client.id);
     }
-
-    Object.keys(this.wss.clients().connected).map(id => {
-      this.logger.log('Connected users: ' + id);
-      // clientObjects[id].disconnect(true);
-    });
 
     this.totalUsers++;
     // Notify connected clients of current users
@@ -71,8 +59,6 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
   async handleDisconnect(client: Socket) {
     this.logger.log('client disconnected ' + client.id);
-    client.leaveAll();
-    // Object.keys(client.rooms).map(room => this.handleRoomLeave(client, room));
     this.totalUsers--;
     // Notify connected clients of current users
     this.wss.emit('count', this.totalUsers);
@@ -82,13 +68,13 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   async onMessage(client: Socket, message: { user: string; room: string; content: string; credentials: object }) {
     const event: string = 'message';
     const authInfo: any = await this.handleAuth(message.credentials);
-    let userName = authInfo.name;
+    // this.logger.log('User: ' + JSON.stringify(client.request.user));
+    const userName = client.request.user.name;
     if (authInfo && authInfo.access_token) {
       client.emit('authenticate', authInfo);
       client.request.user = authInfo.user;
-      userName = authInfo.user.name;
     }
-    // this.logger.log('Auth: ' + JSON.stringify(authInfo) + 'Cookie: ' + JSON.stringify(cookie));
+
     const mess: object = { user: { name: userName }, content: message.content };
     const room: string = message.room;
     // this.messages.push(room);
@@ -96,38 +82,38 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     // this.wss.in(message.room).emit(event, mess);
     // this.messages[message.room].push(mess);
 
-    Object.keys(this.wss.clients().connected).map(id => {
-      this.logger.log('Connected users: ' + id);
-      // clientObjects[id].disconnect(true);
-    });
+    // Object.keys(this.wss.clients().connected).map(id => {
+    //   this.logger.log('Connected users: ' + id);
+    //   // clientObjects[id].disconnect(true);
+    // });
 
-    return Observable.create(observer => observer.next({ event, mess }))
-      .pipe(delay(1))
-      .subscribe((data: { event: string | symbol; mess: object }) => {
-        // this.messages[room].push(data.data);
-        this.wss.in(room).emit(data.event, data.mess);
-      });
+    return (
+      Observable.create(observer => observer.next({ event, mess }))
+        // .pipe(delay(1))
+        .subscribe((data: { event: string | symbol; mess: object }) => {
+          // this.messages[room].push(data.data);
+          this.wss.in(room).emit(data.event, data.mess);
+        })
+    );
   }
 
   @SubscribeMessage('join')
   handleRoomJoin(client: Socket, room: string) {
     client.join(room);
-    this.logger.log('client ' + client.id + ' joined room ' + room);
+    // this.logger.log('client ' + client.id + ' joined room ' + room);
 
     this.wss.in(room).clients((err: any, clients: { length: any }) => {
       this.wss.in(room).emit('room_users', clients.length);
     });
     // Send welcome messages to the connected user
-    this.welcomeMessages.map(mess => {
-      client.emit('message', mess);
-    });
+    this.welcomeMessages.map(mess => client.emit('message', mess));
     client.emit('joined', room);
   }
 
   @SubscribeMessage('leave')
   handleRoomLeave(client: Socket, room: string) {
     client.leave(room);
-    this.logger.log('client ' + client.id + ' left room ' + room);
+    // this.logger.log('client ' + client.id + ' left room ' + room);
 
     this.wss.in(room).clients((err: any, clients: { length: any }) => {
       this.wss.in(room).emit('room_users', clients.length);
