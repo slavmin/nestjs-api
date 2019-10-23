@@ -20,6 +20,19 @@ export class JwtRefreshStrategy extends PassportStrategy(Strategy, 'jwt-refresh'
       throw new HttpException('UNAUTHORIZED', HttpStatus.UNAUTHORIZED);
     });
 
+    if (payload.jti !== data.refreshTokenId) {
+      throw new HttpException('NOT_VALID_REFRESH_TOKEN', HttpStatus.BAD_REQUEST);
+    }
+
+    const expIn = parseInt(this.configService.get('JWT_REFRESH_EXPIRATION'), 10);
+    const atExpire = parseInt(this.configService.get('JWT_EXPIRATION'), 10);
+    const atExpireLag = parseInt(this.configService.get('JWT_EXPIRATION_LAG'), 10);
+    const passIn = parseInt(data.ttl, 10);
+
+    if (atExpire - (expIn - passIn) > atExpireLag) {
+      throw new HttpException('TOKEN_NOT_EXPIRED', HttpStatus.BAD_REQUEST);
+    }
+
     return data ? done(null, data.user) : null;
   }
 }
