@@ -16,10 +16,9 @@ import { User } from './../users/interfaces/user.interface';
 import { parse as CookieParse } from 'cookie';
 
 import { Observable } from 'rxjs';
-import { delay } from 'rxjs/operators';
 // import { WsJwtGuard } from './../../common/guards/sockets.guard';
 
-@WebSocketGateway({ namespace: '/chats', path: '/chats' })
+@WebSocketGateway({ namespace: '/chats' })
 export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer() wss: Server;
 
@@ -44,12 +43,9 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
     if (cookie && cookie.access_token) {
       const decoded: any = await this.handleAuth(cookie);
-      // this.logger.log('User ID: ' + decoded.id + ' Name: ' + decoded.name + ' connected as ' + client.id);
       client.request.user = { id: decoded.id, name: decoded.name, socket: client.id };
-      // this.logger.log('Connected user: ' + JSON.stringify(client.request.user));
     } else {
       client.request.user = { id: client.id, name: 'guest' };
-      this.logger.log('Anonimos client connected ' + client.id);
     }
 
     this.totalUsers++;
@@ -87,20 +83,17 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     //   // clientObjects[id].disconnect(true);
     // });
 
-    return (
-      Observable.create(observer => observer.next({ event, mess }))
-        // .pipe(delay(1))
-        .subscribe((data: { event: string | symbol; mess: object }) => {
-          // this.messages[room].push(data.data);
-          this.wss.in(room).emit(data.event, data.mess);
-        })
+    return Observable.create(observer => observer.next({ event, mess })).subscribe(
+      (data: { event: string | symbol; mess: object }) => {
+        // this.messages[room].push(data.data);
+        this.wss.in(room).emit(data.event, data.mess);
+      },
     );
   }
 
   @SubscribeMessage('join')
   handleRoomJoin(client: Socket, room: string) {
     client.join(room);
-    // this.logger.log('client ' + client.id + ' joined room ' + room);
 
     this.wss.in(room).clients((err: any, clients: { length: any }) => {
       this.wss.in(room).emit('room_users', clients.length);
@@ -113,7 +106,6 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   @SubscribeMessage('leave')
   handleRoomLeave(client: Socket, room: string) {
     client.leave(room);
-    // this.logger.log('client ' + client.id + ' left room ' + room);
 
     this.wss.in(room).clients((err: any, clients: { length: any }) => {
       this.wss.in(room).emit('room_users', clients.length);
