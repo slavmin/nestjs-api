@@ -45,7 +45,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
       const decoded: any = await this.handleAuth(cookie);
       client.request.user = { id: decoded.id, name: decoded.name, socket: client.id };
     } else {
-      client.request.user = { id: client.id, name: 'guest' };
+      client.request.user = { id: client.id, name: 'guest', socket: client.id };
     }
 
     this.totalUsers++;
@@ -116,17 +116,11 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
   async handleAuth(data: any) {
     try {
-      if (!data.refresh_token) {
-        throw new WsException('TOKEN_MISSING');
-      }
       const user: User = await this.jwtAuthService.verify(data.access_token, false, true);
       // this.logger.log('User from jwtAuthService: ' + JSON.stringify(user));
       return user;
     } catch (e) {
       try {
-        if (!data.refresh_token) {
-          throw new WsException('TOKEN_MISSING');
-        }
         const auth: any = await this.jwtAuthService.verify(data.refresh_token, true, true);
         // this.logger.log('Data from refresh: ' + JSON.stringify(auth));
         return auth;

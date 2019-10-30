@@ -15,7 +15,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const time = error.response ? error.response.time : null;
 
     const response = {
-      status,
+      statusCode: status,
       error: name,
       message,
       time,
