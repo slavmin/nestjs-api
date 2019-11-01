@@ -204,7 +204,7 @@ export class UsersService {
     return true;
   }
 
-  async makeServiceToken(email: string, token: string, tokenType: string) {
+  async makeServiceToken(email: string, token: string, tokenType: string): Promise<User> {
     const user = await this.userModel.findOne({ email }).exec();
     if (!user) {
       throw new HttpException('NOT_FOUND', HttpStatus.NOT_FOUND);
