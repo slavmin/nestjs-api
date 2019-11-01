@@ -1,6 +1,6 @@
 import { NestFactory, HttpAdapterHost } from '@nestjs/core';
 import { NestExpressApplication, ExpressAdapter } from '@nestjs/platform-express';
-import { ValidationPipe } from '@nestjs/common';
+// import { ValidationPipe } from '@nestjs/common';
 import 'dotenv/config';
 // import Express from 'express';
 
@@ -13,7 +13,7 @@ import { Request, Response } from 'express';
 import { AppModule } from './modules/app/app.module';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { RedisIoAdapter } from './common/adapters/redis-io.adapter';
-// import { ValidationPipe } from './common/pipes/validation.pipe';
+import { ValidationPipe } from './common/pipes/validation.pipe';
 
 // const server = Express();
 
@@ -43,7 +43,7 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
   app.use('/api/auth/token/refresh', requestLimiter);
   app.useGlobalFilters(new HttpExceptionFilter());
-  app.useGlobalPipes(new ValidationPipe({ disableErrorMessages: true }));
+  app.useGlobalPipes(new ValidationPipe());
   await app.listen(process.env.APP_PORT || 4000);
 }
 bootstrap();

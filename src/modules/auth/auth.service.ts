@@ -1,7 +1,7 @@
 import { Injectable, HttpException, HttpStatus, CACHE_MANAGER, Inject, Logger } from '@nestjs/common';
 import { ConfigService } from '../config/';
 import { UsersService } from '../users/users.service';
-// import { User } from '../users/interfaces/user.interface';
+import { User } from '../users/interfaces/user.interface';
 // import { JwtService } from '@nestjs/jwt';
 import { JwtAuthService } from './jwt/jwt-auth.service';
 import { RegisterDto, LoginDto, EmailDto, ResetPassDto, SendMailDto } from './dto';
@@ -25,14 +25,14 @@ export class AuthService {
 
   async validateUser(loginDto: LoginDto): Promise<any> {
     const { email, password } = loginDto;
-    const user = await this.usersService.getOne({ email });
+    const user: User = await this.usersService.getOne({ email });
     if (!user) {
       throw new HttpException('NOT_FOUND', HttpStatus.NOT_FOUND);
     }
 
-    const isMatch = await this.usersService.loginAttempt(email, password);
+    const isMatch: boolean = await this.usersService.loginAttempt(email, password);
     if (!isMatch) {
-      throw new HttpException('INVALID_CREDENTIALS', HttpStatus.BAD_REQUEST);
+      throw new HttpException('INVALID_CREDENTIALS', HttpStatus.NOT_ACCEPTABLE);
     }
 
     const { accessToken, refreshToken, expiresIn } = await this.jwtAuthService.generateToken(user);
@@ -47,20 +47,32 @@ export class AuthService {
 
   async registerUser(registerDto: RegisterDto): Promise<any> {
     const { username, email, password, password_confirmation } = registerDto;
-    let user = null;
+    let user: User = null;
+    let errors: object = {};
 
     if (password.trim() !== password_confirmation.trim()) {
-      throw new HttpException('PASSWORD_CONFIRMATION_FAILED', HttpStatus.NOT_ACCEPTABLE);
+      errors = { ...errors, password_confirmation: 'PASSWORD_CONFIRMATION_FAILED' };
     }
 
     user = await this.usersService.getOne({ name: username });
     if (user) {
-      throw new HttpException('NOT_ACCEPTABLE_NAME', HttpStatus.NOT_ACCEPTABLE);
+      errors = { ...errors, name: 'NOT_ACCEPTABLE_NAME' };
     }
 
     user = await this.usersService.getOne({ email });
-    if (user !== null) {
-      throw new HttpException('NOT_ACCEPTABLE_EMAIL', HttpStatus.NOT_ACCEPTABLE);
+    if (user) {
+      errors = { ...errors, email: 'NOT_ACCEPTABLE_EMAIL' };
+    }
+
+    if (Object.keys(errors).length > 0) {
+      throw new HttpException(
+        {
+          error: 'VALIDATION_FAILED',
+          message: 'VALIDATION_FAILED',
+          errors,
+        },
+        HttpStatus.NOT_ACCEPTABLE,
+      );
     }
 
     const verificationToken = await AuthService.makeTokenId();

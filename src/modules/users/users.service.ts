@@ -106,7 +106,7 @@ export class UsersService {
   }
 
   // AUTH SPECIFIC FUNCTIONS
-  async loginAttempt(email: string, password: string) {
+  async loginAttempt(email: string, password: string): Promise<boolean> {
     const user = await this.userModel
       .findOne({ email })
       .select([
@@ -120,8 +120,9 @@ export class UsersService {
         'ban_expires',
       ])
       .exec();
+
     if (!user) {
-      throw new HttpException('NOT_FOUND', HttpStatus.NOT_FOUND);
+      return false;
     }
 
     const serviceData = {
@@ -135,14 +136,15 @@ export class UsersService {
     };
 
     const isMatch = await this.checkPassword(user.email, password, serviceData);
+
     if (!isMatch) {
-      throw new HttpException('INVALID_CREDENTIALS', HttpStatus.BAD_REQUEST);
+      return false;
     }
 
-    return user;
+    return true;
   }
 
-  private async checkPassword(email: string, password: string, data: Partial<ServiceDto>) {
+  private async checkPassword(email: string, password: string, data: Partial<ServiceDto>): Promise<boolean> {
     const user = await this.userModel
       .findOne({ email })
       .select(['password'])
@@ -186,7 +188,7 @@ export class UsersService {
     return true;
   }
 
-  async setVerified(tokenId: string, verificationType: string) {
+  async setVerified(tokenId: string, verificationType: string): Promise<boolean> {
     const user = await this.userModel.findOne({ verification_code: tokenId }).exec();
     let data = { verification_code: null, email_verified: true };
 
