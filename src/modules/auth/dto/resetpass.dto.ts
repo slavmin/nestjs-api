@@ -1,12 +1,11 @@
 import { IsNotEmpty, MinLength, MaxLength } from 'class-validator';
 
 export class ResetPassDto {
-  @IsNotEmpty()
+  @IsNotEmpty({ message: 'NOTEMPTY' })
   password_reset_token: string;
-  @IsNotEmpty()
-  @MinLength(6)
-  @MaxLength(30)
+  @MinLength(6, { message: 'MIN:6' })
+  @MaxLength(30, { message: 'MAX:30' })
   password: string;
-  @IsNotEmpty()
-  password_confirmation: string;
+  @IsNotEmpty({ message: 'NOTEMPTY' })
+  password_confirmation?: string;
 }

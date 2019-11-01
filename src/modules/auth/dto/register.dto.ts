@@ -1,17 +1,14 @@
 import { IsNotEmpty, IsEmail, MaxLength, MinLength } from 'class-validator';
 
 export class RegisterDto {
-  @IsNotEmpty()
-  @MinLength(3)
-  @MaxLength(30)
+  @MinLength(3, { message: 'MIN:2' })
+  @MaxLength(30, { message: 'MAX:30' })
   username: string;
-  @IsNotEmpty()
-  @IsEmail()
+  @IsEmail({}, { message: 'EMAIL:NOTVALID' })
   email: string;
-  @IsNotEmpty()
-  @MinLength(6)
-  @MaxLength(30)
+  @MinLength(6, { message: 'MIN:6' })
+  @MaxLength(30, { message: 'MAX:30' })
   password: string;
-  @IsNotEmpty()
+  @IsNotEmpty({ message: 'NOTEMPTY' })
   password_confirmation?: string;
 }

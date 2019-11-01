@@ -1,7 +1,6 @@
 import { IsNotEmpty, IsEmail } from 'class-validator';
 
 export class EmailDto {
-  @IsNotEmpty()
-  @IsEmail()
+  @IsEmail({}, { message: 'EMAIL:NOTVALID' })
   email: string;
 }

@@ -5,16 +5,21 @@ import { validate } from 'class-validator';
 
 @Injectable()
 export class ValidationPipe implements PipeTransform<any> {
-  async transform(value: any, metadata: ArgumentMetadata) {
+  async transform(val: any, metadata: ArgumentMetadata) {
     const { metatype } = metadata;
     if (!metatype || !this.toValidate(metatype)) {
-      return value;
+      return val;
     }
-    const object = plainToClass(metatype, value);
+    const object = plainToClass(metatype, val);
     const errors = await validate(object);
     const mapErrors = errors.map(error => {
       const { property, value, constraints } = error;
-      return { property, value, rule: Object.keys(constraints).toString() };
+      return {
+        property,
+        message: Object.values(constraints).toString(),
+        // rule: Object.keys(constraints).toString(),
+        // constraints,
+      };
     });
     if (errors.length > 0) {
       throw new BadRequestException({
@@ -23,7 +28,7 @@ export class ValidationPipe implements PipeTransform<any> {
         errors: mapErrors,
       });
     }
-    return value;
+    return val;
   }
 
   private toValidate(metatype: Type<any>): boolean {

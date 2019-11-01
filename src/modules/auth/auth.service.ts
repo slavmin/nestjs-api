@@ -48,20 +48,24 @@ export class AuthService {
   async registerUser(registerDto: RegisterDto): Promise<any> {
     const { username, email, password, password_confirmation } = registerDto;
     let user: User = null;
-    let errors: object = {};
+    const errors = [];
+    let error: object = {};
 
     if (password.trim() !== password_confirmation.trim()) {
-      errors = { ...errors, password_confirmation: 'PASSWORD_CONFIRMATION_FAILED' };
+      error = { property: 'password_confirmation', message: 'PASSWORD_CONFIRMATION_FAILED' };
+      errors.push(error);
     }
 
     user = await this.usersService.getOne({ name: username });
     if (user) {
-      errors = { ...errors, name: 'NOT_ACCEPTABLE_NAME' };
+      error = { property: 'username', message: 'NOT_ACCEPTABLE_NAME' };
+      errors.push(error);
     }
 
     user = await this.usersService.getOne({ email });
     if (user) {
-      errors = { ...errors, email: 'NOT_ACCEPTABLE_EMAIL' };
+      error = { property: 'email', message: 'NOT_ACCEPTABLE_EMAIL' };
+      errors.push(error);
     }
 
     if (Object.keys(errors).length > 0) {
