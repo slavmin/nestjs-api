@@ -1,7 +1,7 @@
 import { IsNotEmpty, IsEmail, MaxLength, MinLength } from 'class-validator';
 
 export class RegisterDto {
-  @MinLength(3, { message: 'MIN:2' })
+  @MinLength(2, { message: 'MIN:2' })
   @MaxLength(30, { message: 'MAX:30' })
   username: string;
   @IsEmail({}, { message: 'EMAIL:NOTVALID' })
