@@ -100,6 +100,7 @@ export class AuthService {
     this.sendEmail(mailData);
 
     return {
+      statusCode: 201,
       message: 'REGISTRATION_SUCCESS',
     };
   }
@@ -114,6 +115,7 @@ export class AuthService {
     });
 
     return {
+      statusCode: 200,
       message: 'LOGOUT_SUCCESS',
     };
   }
@@ -122,6 +124,7 @@ export class AuthService {
     const isVerified = await this.usersService.setVerified(tokenId, verificationType);
     if (isVerified) {
       return {
+        statusCode: 200,
         message: 'VERIFICATION_SUCCESS',
       };
     } else {
@@ -146,6 +149,7 @@ export class AuthService {
     this.sendEmail(mailData);
 
     return {
+      statusCode: 201,
       message: 'VERIFICATION_SENT',
     };
   }
@@ -174,6 +178,7 @@ export class AuthService {
         throw new HttpException('RESET_PASSWORD_FAILED', HttpStatus.BAD_REQUEST);
       } else {
         return {
+          statusCode: 201,
           message: 'RESET_PASSWORD_SUCCESS',
         };
       }
@@ -202,6 +207,7 @@ export class AuthService {
     this.sendEmail(mailData);
 
     return {
+      statusCode: 201,
       message: 'RESET_TOKEN_SENT',
     };
   }
