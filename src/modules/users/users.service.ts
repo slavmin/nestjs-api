@@ -190,9 +190,13 @@ export class UsersService {
 
   async setVerified(tokenId: string, verificationType: string): Promise<boolean> {
     const user = await this.userModel.findOne({ verification_code: tokenId }).exec();
-    let data = { verification_code: null, email_verified: true };
+    let data = {};
 
     if (verificationType === 'phone') {
+      data = { verification_code: null, phone_verified: true };
+    }
+
+    if (verificationType === 'email') {
       data = { verification_code: null, email_verified: true };
     }
 
