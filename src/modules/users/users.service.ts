@@ -221,7 +221,7 @@ export class UsersService {
       case 'verifyEmail':
         const isVerified = user.email_verified;
         if (isVerified) {
-          throw new HttpException('ALLREADY_VERIFIED', HttpStatus.OK);
+          throw new HttpException('ALLREADY_VERIFIED', HttpStatus.NOT_ACCEPTABLE);
         }
         await this.userModel.updateOne({ _id: user._id }, { verification_code: token });
         break;
