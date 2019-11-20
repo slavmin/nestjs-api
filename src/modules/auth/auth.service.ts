@@ -156,13 +156,26 @@ export class AuthService {
 
   async resetPassword(resetPassDto: ResetPassDto): Promise<any> {
     const { password_reset_token, password, password_confirmation } = resetPassDto;
+    const errors = [];
+    let error: object = {};
+
     if (password.trim() !== password_confirmation.trim()) {
-      throw new HttpException('PASSWORD_CONFIRMATION_FAILED', HttpStatus.NOT_ACCEPTABLE);
+      error = { property: 'password_confirmation', message: 'PASSWORD_CONFIRMATION_FAILED' };
+      errors.push(error);
+      throw new HttpException(
+        {
+          error: 'VALIDATION_FAILED',
+          message: 'VALIDATION_FAILED',
+          errors,
+        },
+        HttpStatus.NOT_ACCEPTABLE,
+      );
     }
 
     let user = await this.usersService.getOneWithPassReset({
       password_reset_token,
     });
+
     if (!user) {
       throw new HttpException('NOT_FOUND', HttpStatus.NOT_FOUND);
     }
@@ -175,7 +188,7 @@ export class AuthService {
         password_reset_token: null,
       });
       if (!user) {
-        throw new HttpException('RESET_PASSWORD_FAILED', HttpStatus.BAD_REQUEST);
+        throw new HttpException('RESET_PASSWORD_FAILED', HttpStatus.UNPROCESSABLE_ENTITY);
       } else {
         return {
           statusCode: 201,
