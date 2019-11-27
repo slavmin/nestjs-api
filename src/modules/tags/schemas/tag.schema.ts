@@ -18,6 +18,11 @@ export const TagSchema = new Schema(
     description: {
       type: String,
     },
+    parent: {
+      type: Schema.Types.ObjectId,
+      ref: 'Tag',
+    },
+    ancestors: [{ type: Schema.Types.ObjectId, ref: 'Tag' }],
     created_at: { type: Date, default: Date.now, select: false },
     updated_at: { type: Date, default: Date.now, select: false },
   },

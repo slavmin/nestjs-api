@@ -4,6 +4,7 @@ import { Model, Types } from 'mongoose';
 
 // import { UsersService } from '../users';
 import { Room } from './interfaces/room.interface';
+import { CreateDto } from './dto/create.dto';
 // import { Message } from './interfaces/message.interface';
 import { User } from './../users/interfaces/user.interface';
 import * as _ from 'lodash';
@@ -13,21 +14,10 @@ export class RoomsService {
   constructor(@InjectModel('Room') private readonly roomModel: Model<Room>) {}
 
   private static sanitizeOutput(room: Room) {
-    return _.pick(room, [
-      'id',
-      'uuid',
-      'owner',
-      'name',
-      'description',
-      'tags',
-      'categories',
-      'likes',
-      'followers',
-      'messages',
-    ]);
+    return _.omit(room, ['created_at', 'updated_at']);
   }
 
-  async create(room: Room, user: User): Promise<Partial<Room>> {
+  async create(room: CreateDto, user: User): Promise<Partial<Room>> {
     const isExist = await this.roomModel.findOne({ owner: user.id }).exec();
     if (isExist) {
       throw new HttpException('EXIST_ALREADY', HttpStatus.BAD_REQUEST);
@@ -45,7 +35,7 @@ export class RoomsService {
     // RoomsService.isIdValid(id);
     const room = await this.roomModel
       .findById(id)
-      .populate({ path: 'owner', select: 'id uuid name role status country language' })
+      .populate({ path: 'owner', select: 'id uuid name role country language' })
       .exec();
     return room ? RoomsService.sanitizeOutput(room) : null;
   }
@@ -55,9 +45,10 @@ export class RoomsService {
     return room ? await this.getById(room.id) : null;
   }
 
-  async update(id: string, newValue: Room): Promise<Partial<Room> | null> {
+  async update(id: string, newValue: CreateDto): Promise<Partial<Room> | null> {
     // RoomsService.isIdValid(id);
-    const room = await this.roomModel.findByIdAndUpdate(id, newValue).exec();
+    const data = _.omit(newValue, ['uuid', 'owner', 'name']);
+    const room = await this.roomModel.findByIdAndUpdate(id, data).exec();
     return room ? await this.getById(room.id) : null;
   }
 

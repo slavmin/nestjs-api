@@ -12,6 +12,7 @@ import {
 } from '@nestjs/common';
 import { RoomsService } from './rooms.service';
 import { Room } from './interfaces/room.interface';
+import { CreateDto } from './dto/create.dto';
 import { ValidateObjectId } from './../../common/pipes/validate-object-id.pipe';
 import { Roles } from './../../common/decorators/roles.decorator';
 import { AuthGuard } from '@nestjs/passport';
@@ -37,7 +38,7 @@ export class RoomsController {
   @UseGuards(AuthGuard('jwt'))
   @Roles('member')
   @Post()
-  async create(@Body() createDto: Room, @Request() req: any): Promise<Partial<Room>> {
+  async create(@Body() createDto: CreateDto, @Request() req: any): Promise<Partial<Room>> {
     return await this.roomsService.create(createDto, req.user);
   }
 
@@ -46,11 +47,11 @@ export class RoomsController {
   @Patch(':id')
   async update(
     @Param('id', ValidateObjectId) roomId: string,
-    @Body() createDto: Room,
+    @Body() createDto: CreateDto,
     @Request() req: any,
   ): Promise<Partial<Room>> {
     const room = await this.roomsService.getById(roomId);
-    if (room.owner.id !== req.user.id) {
+    if (!room || room.owner.id !== req.user.id) {
       throw new HttpException('FORBIDDEN', HttpStatus.FORBIDDEN);
     }
     return await this.roomsService.update(roomId, createDto);
