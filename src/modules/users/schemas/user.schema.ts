@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt';
 import uuid from 'uuid/v4';
 import { Schema, HookNextFunction } from 'mongoose';
+import { Role, Status } from './../enums/enums';
 import mongoosePaginate from 'mongoose-paginate-v2';
 import uniqueValidator from 'mongoose-unique-validator';
 
@@ -32,14 +33,14 @@ export const UserSchema = new Schema(
     },
     role: {
       type: String,
-      enum: ['user', 'member', 'moderator', 'admin'],
-      default: 'user',
+      enum: Object.values(Role).filter(v => isNaN(Number(v)) === true),
+      default: Role[Role.user],
       index: true,
     },
     status: {
       type: String,
-      enum: ['wood', 'bronze', 'silver', 'cold', 'platinum', 'diamond'],
-      default: 'wood',
+      enum: Object.values(Status).filter(v => isNaN(Number(v)) === true),
+      default: Status[Status.iron],
       index: true,
     },
     country: {
@@ -56,6 +57,7 @@ export const UserSchema = new Schema(
     verification_code: {
       type: String,
       default: null,
+      select: false,
     },
     email_verified: {
       type: Boolean,
@@ -89,7 +91,8 @@ export const UserSchema = new Schema(
     },
     block_expires: {
       type: Date,
-      default: Date.now,
+      // default: Date.now,
+      default: null,
       select: false,
     },
     banned: {
@@ -98,15 +101,17 @@ export const UserSchema = new Schema(
     },
     ban_expires: {
       type: Date,
-      default: Date.now,
+      // default: Date.now,
+      default: null,
       select: false,
     },
-    created_at: { type: Date, default: Date.now, select: false },
-    updated_at: { type: Date, default: Date.now, select: false },
+    // created_at: { type: Date, default: Date.now, select: false },
+    // updated_at: { type: Date, default: Date.now, select: false },
   },
   {
     versionKey: false,
-    timestamps: false,
+    // timestamps: false,
+    timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },
   },
 );
 
@@ -115,6 +120,10 @@ UserSchema.set('toJSON', {
   transform(doc, ret) {
     ret.id = ret._id;
     delete ret._id;
+    ret.created_at = ret.created_at;
+    delete ret.created_at;
+    ret.updated_at = ret.updated_at;
+    delete ret.updated_at;
   },
 });
 
@@ -128,8 +137,8 @@ UserSchema.pre('save', async function(next: HookNextFunction) {
   /**
    * On every save, add the date
    */
-  const currentDate = new Date();
-  (this as any).updated_at = currentDate;
+  // const currentDate = new Date();
+  // (this as any).updated_at = currentDate;
   /**
    * Rehash password if modified
    */

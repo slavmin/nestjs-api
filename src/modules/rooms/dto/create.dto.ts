@@ -8,34 +8,34 @@ export class CreateDto {
   age: number;
   @IsIn(
     Object.values(Gender).filter(v => isNaN(Number(v)) === true),
-    { message: 'NOTVALID' },
+    { message: 'NOT_ACCEPTABLE_VALUE' },
   )
   gender: string;
   @IsIn(
     Object.values(Ethnicity).filter(v => isNaN(Number(v)) === true),
-    { message: 'NOTVALID' },
+    { message: 'NOT_ACCEPTABLE_VALUE' },
   )
   ethnicity: string;
   @IsIn(
     Object.values(Physique).filter(v => isNaN(Number(v)) === true),
-    { message: 'NOTVALID' },
+    { message: 'NOT_ACCEPTABLE_VALUE' },
   )
   physique: string;
   @IsIn(
     Object.values(Hair).filter(v => isNaN(Number(v)) === true),
-    { message: 'NOTVALID' },
+    { message: 'NOT_ACCEPTABLE_VALUE' },
   )
   hair: string;
   @IsOptional()
   @IsIn(
     Object.values(Eyes).filter(v => isNaN(Number(v)) === true),
-    { message: 'NOTVALID' },
+    { message: 'NOT_ACCEPTABLE_VALUE' },
   )
   eyes?: string;
   @IsOptional()
   @IsIn(
     Object.values(Orientation).filter(v => isNaN(Number(v)) === true),
-    { message: 'NOTVALID' },
+    { message: 'NOT_ACCEPTABLE_VALUE' },
   )
   orientation?: string;
   @MaxLength(500, { message: 'MAX:500' })

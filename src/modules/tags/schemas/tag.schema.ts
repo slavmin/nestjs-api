@@ -23,12 +23,10 @@ export const TagSchema = new Schema(
       ref: 'Tag',
     },
     ancestors: [{ type: Schema.Types.ObjectId, ref: 'Tag' }],
-    created_at: { type: Date, default: Date.now, select: false },
-    updated_at: { type: Date, default: Date.now, select: false },
   },
   {
     versionKey: false,
-    timestamps: false,
+    timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },
   },
 );
 
@@ -37,6 +35,10 @@ TagSchema.set('toJSON', {
   transform(doc, ret) {
     ret.id = ret._id;
     delete ret._id;
+    ret.created_at = ret.created_at;
+    delete ret.created_at;
+    ret.updated_at = ret.updated_at;
+    delete ret.updated_at;
   },
 });
 
@@ -47,10 +49,5 @@ TagSchema.pre('save', async function(next: HookNextFunction) {
   if (this.isNew) {
     (this as any).uuid = uuid();
   }
-  /**
-   * On every save, add the date
-   */
-  const currentDate = new Date();
-  (this as any).updated_at = currentDate;
   next();
 });
