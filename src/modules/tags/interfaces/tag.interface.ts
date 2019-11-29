@@ -5,6 +5,8 @@ export interface Tag extends Document {
   readonly uuid: string;
   name: string;
   description?: string;
+  parent: Tag;
+  ancestors?: [Tag];
   readonly created_at: Date;
   readonly updated_at: Date;
 }

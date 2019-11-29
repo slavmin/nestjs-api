@@ -54,6 +54,11 @@ export const UserSchema = new Schema(
       trim: true,
       index: true,
     },
+    picture_url: {
+      type: String,
+      lowercase: true,
+      trim: true,
+    },
     verification_code: {
       type: String,
       default: null,

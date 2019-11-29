@@ -8,7 +8,7 @@ export interface Room extends Document {
   readonly uuid: string;
   readonly owner: User;
   readonly name: string;
-  gender: string;
+  readonly gender: string;
   age: number;
   country: string;
   languages: string[];
@@ -18,7 +18,7 @@ export interface Room extends Document {
   eyes?: string;
   orientation?: string;
   description?: string;
-  tags?: Tag[];
+  tags: Tag[];
   categories?: [];
   likes?: User[];
   followers?: User[];

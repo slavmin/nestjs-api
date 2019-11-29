@@ -1,6 +1,6 @@
 import { Schema, HookNextFunction } from 'mongoose';
-import { RoomSchema } from '../../rooms/schemas/room.schema';
 import uuid from 'uuid/v4';
+import uniqueValidator from 'mongoose-unique-validator';
 
 export const TagSchema = new Schema(
   {
@@ -22,7 +22,7 @@ export const TagSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: 'Tag',
     },
-    ancestors: [{ type: Schema.Types.ObjectId, ref: 'Tag' }],
+    ancestors: [{ type: Schema.Types.ObjectId, ref: 'Tag', index: true }],
   },
   {
     versionKey: false,
@@ -51,3 +51,5 @@ TagSchema.pre('save', async function(next: HookNextFunction) {
   }
   next();
 });
+
+TagSchema.plugin(uniqueValidator);

@@ -1,8 +1,9 @@
 import { Schema, HookNextFunction } from 'mongoose';
-import { TagSchema } from '../../tags/schemas/tag.schema';
-import { UserSchema } from '../../users/schemas/user.schema';
+// import { TagSchema } from '../../tags/schemas/tag.schema';
+// import { UserSchema } from '../../users/schemas/user.schema';
 import { Gender, Ethnicity, Physique, Hair, Eyes, Orientation } from './../enums/enums';
 import uuid from 'uuid/v4';
+import uniqueValidator from 'mongoose-unique-validator';
 
 export const RoomSchema = new Schema(
   {
@@ -17,7 +18,13 @@ export const RoomSchema = new Schema(
     },
     name: {
       type: String,
+      unique: true,
       required: true,
+    },
+    picture_url: {
+      type: String,
+      lowercase: true,
+      trim: true,
     },
     age: {
       type: Number,
@@ -63,12 +70,12 @@ export const RoomSchema = new Schema(
     description: {
       type: String,
     },
-    tags: [{ type: Schema.Types.ObjectId, ref: 'Tag' }],
-    categories: [],
-    languages: [],
+    tags: [{ type: Schema.Types.ObjectId, ref: 'Tag', index: true }],
+    categories: [{ type: [String], index: true }],
+    languages: [{ type: [String], index: true }],
     likes: [{ type: Schema.Types.ObjectId, ref: 'User' }],
     followers: [{ type: Schema.Types.ObjectId, ref: 'User' }],
-    messages: [],
+    messages: [{ type: [String] }],
   },
   {
     versionKey: false,
@@ -97,3 +104,5 @@ RoomSchema.pre('save', async function(next: HookNextFunction) {
   }
   next();
 });
+
+RoomSchema.plugin(uniqueValidator);
