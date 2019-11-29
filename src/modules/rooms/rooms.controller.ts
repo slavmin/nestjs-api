@@ -41,18 +41,6 @@ export class RoomsController {
     return rooms;
   }
 
-  // @Get('/chats/:cat/:value')
-  // async findByGenderAndCategory(@Param('cat') cat: string, @Param('value') value: string): Promise<Partial<Room>> {
-  //   const category = cat.slice(0, cat.length - 1);
-  //   const tag = await this.tagsService.getOne({ name: value });
-  //   console.log(tag);
-  //   const rooms = await this.roomsService.getAll({ $and: [{ gender: category }, { categories: { $in: [value] } }] });
-  //   if (Array.isArray(rooms) && !rooms.length) {
-  //     throw new HttpException('NOT_FOUND', HttpStatus.NOT_FOUND);
-  //   }
-  //   return rooms;
-  // }
-
   @Get('/chats/:cat')
   async findByGender(@Param('cat') cat: string): Promise<Partial<Room>> {
     const category = cat.slice(0, cat.length - 1);
