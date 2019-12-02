@@ -9,15 +9,10 @@ export interface Room extends Document {
   readonly owner: User;
   readonly name: string;
   readonly gender: string;
-  age: number;
+  readonly age: number;
   country: string;
-  languages: string[];
-  ethnicity: string;
-  physique: string;
-  hair: string;
-  eyes?: string;
-  orientation?: string;
   description?: string;
+  languages: string[];
   tags: Tag[];
   categories?: [];
   likes?: User[];

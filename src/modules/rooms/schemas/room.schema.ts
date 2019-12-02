@@ -1,7 +1,5 @@
 import { Schema, HookNextFunction } from 'mongoose';
-// import { TagSchema } from '../../tags/schemas/tag.schema';
-// import { UserSchema } from '../../users/schemas/user.schema';
-import { Gender, Ethnicity, Physique, Hair, Eyes, Orientation } from './../enums/enums';
+import { Gender } from './../enums/enums';
 import uuid from 'uuid/v4';
 import uniqueValidator from 'mongoose-unique-validator';
 
@@ -37,42 +35,11 @@ export const RoomSchema = new Schema(
       default: Gender[Gender.girl],
       index: true,
     },
-    ethnicity: {
-      type: String,
-      enum: Object.values(Ethnicity).filter(v => isNaN(Number(v)) === true),
-      default: Ethnicity[Ethnicity.white],
-      index: true,
-    },
-    physique: {
-      type: String,
-      enum: Object.values(Physique).filter(v => isNaN(Number(v)) === true),
-      default: Physique[Physique.medium],
-      index: true,
-    },
-    hair: {
-      type: String,
-      enum: Object.values(Hair).filter(v => isNaN(Number(v)) === true),
-      default: Hair[Hair.blonde],
-      index: true,
-    },
-    eyes: {
-      type: String,
-      enum: Object.values(Eyes).filter(v => isNaN(Number(v)) === true),
-      default: Eyes[Eyes.brown],
-      index: true,
-    },
-    orientation: {
-      type: String,
-      enum: Object.values(Orientation).filter(v => isNaN(Number(v)) === true),
-      default: Orientation[Orientation.straight],
-      index: true,
-    },
     description: {
       type: String,
     },
     tags: [{ type: Schema.Types.ObjectId, ref: 'Tag', index: true }],
-    categories: [{ type: [String], index: true }],
-    languages: [{ type: [String], index: true }],
+    languages: [{ type: Schema.Types.ObjectId, ref: 'Tag', index: true }],
     likes: [{ type: Schema.Types.ObjectId, ref: 'User' }],
     followers: [{ type: Schema.Types.ObjectId, ref: 'User' }],
     messages: [{ type: [String] }],

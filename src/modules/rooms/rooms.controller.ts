@@ -9,6 +9,7 @@ import {
   HttpException,
   HttpStatus,
   Patch,
+  UsePipes,
 } from '@nestjs/common';
 import { RoomsService } from './rooms.service';
 import { Room } from './interfaces/room.interface';
@@ -17,6 +18,7 @@ import { TagsService } from './../tags/tags.service';
 import { ValidateObjectId } from './../../common/pipes/validate-object-id.pipe';
 import { Roles } from './../../common/decorators/roles.decorator';
 import { AuthGuard } from '@nestjs/passport';
+import { ValidateRoomObject } from './pipes/validate-room-object.pipe';
 
 @Controller('rooms')
 export class RoomsController {
@@ -72,7 +74,7 @@ export class RoomsController {
   @Patch(':id')
   async update(
     @Param('id', ValidateObjectId) roomId: string,
-    @Body() createDto: CreateDto,
+    @Body(ValidateRoomObject) createDto: CreateDto,
     @Request() req: any,
   ): Promise<Partial<Room>> {
     const room = await this.roomsService.getById(roomId);
