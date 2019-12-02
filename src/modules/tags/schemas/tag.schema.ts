@@ -52,4 +52,9 @@ TagSchema.pre('save', async function(next: HookNextFunction) {
   next();
 });
 
+// Always attach `populate()` to `find()` calls
+TagSchema.pre('find', function() {
+  (this as any).populate({ path: 'parent', select: 'id uuid name' });
+});
+
 TagSchema.plugin(uniqueValidator);
