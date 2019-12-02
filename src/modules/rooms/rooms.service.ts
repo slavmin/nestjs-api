@@ -39,19 +39,27 @@ export class RoomsService {
     const room = await this.roomModel
       .findById(id)
       .populate({ path: 'owner', select: 'id uuid name role country language' })
+      .populate({ path: 'tags', select: 'id uuid name parent' })
       .exec();
     return room ? RoomsService.sanitizeOutput(room) : null;
   }
 
   async getOne(options?: any, fields?: any): Promise<Partial<Room> | null> {
-    const room = await this.roomModel.findOne(options, fields).exec();
+    const room = await this.roomModel
+      .findOne(options, fields)
+      .populate({ path: 'owner', select: 'id uuid name role country language' })
+      .populate({ path: 'tags', select: 'id uuid name parent' })
+      .exec();
     return room ? await this.getById(room.id) : null;
   }
 
   async update(id: string, newValue: CreateDto): Promise<Partial<Room> | null> {
     // RoomsService.isIdValid(id);
     const data = _.omit(newValue, ['uuid', 'owner', 'name']);
-    const room = await this.roomModel.findByIdAndUpdate(id, data).exec();
+    const room = await this.roomModel
+      .findByIdAndUpdate(id, data)
+      .populate({ path: 'tags', select: 'id uuid name parent' })
+      .exec();
     return room ? await this.getById(room.id) : null;
   }
 
