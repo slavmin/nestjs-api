@@ -8,7 +8,7 @@ export class CreateDto {
   @IsOptional()
   @MaxLength(250, { message: 'MAX:250' })
   description?: string;
-  parent: Tag;
+  parent?: Tag;
   @IsOptional()
   @IsArray()
   ancestors?: [Tag];

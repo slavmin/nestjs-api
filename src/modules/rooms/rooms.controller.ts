@@ -9,7 +9,6 @@ import {
   HttpException,
   HttpStatus,
   Patch,
-  UsePipes,
 } from '@nestjs/common';
 import { RoomsService } from './rooms.service';
 import { Room } from './interfaces/room.interface';
@@ -36,9 +35,11 @@ export class RoomsController {
     if (!tag) {
       throw new HttpException('NOT_FOUND', HttpStatus.NOT_FOUND);
     }
-    const rooms = await this.roomsService.getAll({ $and: [{ gender: category }, { tags: { $in: [tag._id] } }] });
+    const rooms = await this.roomsService.getAll({
+      $and: [{ gender: category, age: { $gte: 21, $lte: 29 } }, { tags: { $in: [tag._id] } }],
+    });
     if (Array.isArray(rooms) && !rooms.length) {
-      throw new HttpException('NOT_FOUND', HttpStatus.NOT_FOUND);
+      throw new HttpException('NO_CONTENT', HttpStatus.NO_CONTENT);
     }
     return rooms;
   }
@@ -48,7 +49,7 @@ export class RoomsController {
     const category = cat.slice(0, cat.length - 1);
     const rooms = await this.roomsService.getAll({ gender: category });
     if (Array.isArray(rooms) && !rooms.length) {
-      throw new HttpException('NOT_FOUND', HttpStatus.NOT_FOUND);
+      throw new HttpException('NO_CONTENT', HttpStatus.NO_CONTENT);
     }
     return rooms;
   }

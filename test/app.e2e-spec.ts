@@ -30,11 +30,12 @@ describe('AppController (e2e)', () => {
   };
 
   beforeAll(async () => {
-    await mongoose.connect(database, {useNewUrlParser: true});
+    await mongoose.connect(database, {useNewUrlParser: true, useUnifiedTopology: true});
     await mongoose.connection.db.dropDatabase();
   });
 
   afterAll(async done => {
+    // await mongoose.connection.db.dropDatabase();
     await mongoose.disconnect(done);
     // await app.close();
   });
@@ -70,7 +71,7 @@ describe('AppController (e2e)', () => {
       .post('/auth/signup')
       .send(user2)
       .expect(({ body }) => {
-        expect(body.message).toEqual('NOT_ACCEPTABLE_NAME');
+        expect(body.message).toEqual('VALIDATION_FAILED');
       })
       .expect(HttpStatus.NOT_ACCEPTABLE);
   });
@@ -80,7 +81,7 @@ describe('AppController (e2e)', () => {
       .post('/auth/signup')
       .send(user3)
       .expect(({ body }) => {
-        expect(body.message).toEqual('NOT_ACCEPTABLE_EMAIL');
+        expect(body.message).toEqual('VALIDATION_FAILED');
       })
       .expect(HttpStatus.NOT_ACCEPTABLE);
   });
