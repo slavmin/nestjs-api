@@ -1,4 +1,4 @@
-import { MaxLength, IsInt, Min, Max, IsOptional, IsIn, IsArray } from 'class-validator';
+import { MaxLength, IsInt, Min, Max, IsOptional, IsIn, IsArray, IsString } from 'class-validator';
 import { Gender } from './../enums/enums';
 import { Tag } from 'src/modules/tags/interfaces/tag.interface';
 
@@ -15,9 +15,37 @@ export class CreateDto {
   gender: string;
 
   @IsOptional()
-  @MaxLength(500, { message: 'MAX:500' })
-  description?: string;
+  @IsString({ message: 'ISSTRING' })
+  ethnicity: string;
+  @IsOptional()
+  @IsString({ message: 'ISSTRING' })
+  physique: string;
+  @IsOptional()
+  @IsString({ message: 'ISSTRING' })
+  hair: string;
+  @IsOptional()
+  @IsString({ message: 'ISSTRING' })
+  eyes: string;
+  @IsOptional()
+  @IsString({ message: 'ISSTRING' })
+  orientation: string;
+  @IsOptional()
+  @IsString({ message: 'ISSTRING' })
+  subculture: string;
 
-  @IsArray()
+  @IsOptional()
+  @MaxLength(500, { message: 'MAX:500' })
+  description: string;
+
+  @IsOptional()
+  @IsArray({ message: 'ISARRAY' })
+  activity: [Tag];
+
+  @IsOptional()
+  @IsArray({ message: 'ISARRAY' })
+  specifics: [Tag];
+
+  @IsOptional()
+  @IsArray({ message: 'ISARRAY' })
   tags: [Tag];
 }

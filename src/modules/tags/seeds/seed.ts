@@ -1,6 +1,19 @@
 export const Tags = [
   { name: 'gender', childs: [{ name: 'girl' }, { name: 'boy' }, { name: 'tran' }, { name: 'couple' }] },
   {
+    name: 'age',
+    childs: [
+      { name: 'teens', description: '18-25' },
+      { name: 'twinks', description: '18-25' },
+      { name: 'twenties', description: '26-34' },
+      { name: 'milfs', description: '35-48' },
+      { name: 'daddies', description: '35-48' },
+      { name: 'mature', description: '49-68' },
+      { name: 'grannies', description: '69-108' },
+      { name: 'grandpas', description: '69-108' },
+    ],
+  },
+  {
     name: 'ethnicity',
     childs: [
       { name: 'arab' },
@@ -88,7 +101,7 @@ export const Tags = [
     ],
   },
   {
-    name: 'specific',
+    name: 'specifics',
     childs: [
       { name: 'big-cock' },
       { name: 'lesbians' },

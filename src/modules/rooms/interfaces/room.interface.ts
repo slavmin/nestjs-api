@@ -14,7 +14,6 @@ export interface Room extends Document {
   description?: string;
   languages: string[];
   tags: Tag[];
-  categories?: [];
   likes?: User[];
   followers?: User[];
   messages?: Message[];

@@ -36,7 +36,8 @@ export class RoomsController {
       throw new HttpException('NOT_FOUND', HttpStatus.NOT_FOUND);
     }
     const rooms = await this.roomsService.getAll({
-      $and: [{ gender: category, age: { $gte: 21, $lte: 29 } }, { tags: { $in: [tag._id] } }],
+      //   $and: [{ gender: category, age: { $gte: 21, $lte: 29 } }, { tags: { $in: [tag._id] } }],
+      $and: [{ gender: category }, { tags: { $in: [tag._id] } }],
     });
     if (Array.isArray(rooms) && !rooms.length) {
       throw new HttpException('NO_CONTENT', HttpStatus.NO_CONTENT);
