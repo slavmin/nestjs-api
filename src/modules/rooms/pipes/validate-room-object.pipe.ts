@@ -16,11 +16,11 @@ export class ValidateRoomObject implements PipeTransform<string> {
     if (tags) {
       Object.values(tags).map(val => {
         if (val.parent && ValidateRoomObject.isIdValid(val.parent._id)) {
-          const item = { name: val.name, id: val._id };
+          const item = { name: val.name, description: val.description, id: val._id };
           const parentId = val.parent._id.toString();
           tagsCategories[parentId].childs.push(item);
         } else {
-          const item = { name: val.name, id: val._id };
+          const item = { name: val.name, description: val.description, id: val._id };
           const Id = val._id.toString();
           tagsCategories[Id] = item;
           tagsCategories[Id].childs = [];
@@ -34,6 +34,35 @@ export class ValidateRoomObject implements PipeTransform<string> {
         if (bodyKeys.includes(val.name)) {
           Object.values(val.childs).forEach(child => {
             const childObj: any = child;
+            if (val.name === 'age') {
+              const ageDesc = childObj.description ? childObj.description.split('-') : null;
+              const tagGender = ageDesc[0];
+              const minAge = ageDesc[1];
+              const maxAge = ageDesc[2];
+
+              switch (valueObj.gender) {
+                case 'girl':
+                  if (
+                    (value[val.name] >= minAge && value[val.name] <= maxAge && tagGender === valueObj.gender) ||
+                    (value[val.name] >= minAge && value[val.name] <= maxAge && tagGender === 'any')
+                  ) {
+                    tagsArr.push(childObj.id);
+                  }
+                  break;
+
+                case 'boy':
+                  if (
+                    (value[val.name] >= minAge && value[val.name] <= maxAge && tagGender === valueObj.gender) ||
+                    (value[val.name] >= minAge && value[val.name] <= maxAge && tagGender === 'any')
+                  ) {
+                    tagsArr.push(childObj.id);
+                  }
+                  break;
+
+                default:
+                  break;
+              }
+            }
             if (Array.isArray(value[val.name])) {
               if (value[val.name].includes(childObj.name)) {
                 if (!tagsArr.includes(childObj.id)) {
@@ -48,7 +77,6 @@ export class ValidateRoomObject implements PipeTransform<string> {
             }
           });
         }
-        // bodyKeys.includes(val.name) ? console.log(`${val.name}: ${value[val.name]}`) : null;
       });
       // Object.entries(tagsCategories).forEach(([key, value]) => console.log(`${key}: ${value}`));
       // console.log(JSON.stringify(tagsCategories));
