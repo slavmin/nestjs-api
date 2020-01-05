@@ -16,6 +16,9 @@ export class CreateDto {
 
   @IsOptional()
   @IsString({ message: 'ISSTRING' })
+  picture_url: string;
+  @IsOptional()
+  @IsString({ message: 'ISSTRING' })
   ethnicity: string;
   @IsOptional()
   @IsString({ message: 'ISSTRING' })

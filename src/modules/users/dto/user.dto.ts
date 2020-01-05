@@ -16,6 +16,7 @@ export class RegisterDto {
 export interface UpdateDto {
   country: string;
   language: string;
+  picture_url: string;
   password?: string;
   password_confirmation?: string;
   password_reset_token?: string;
