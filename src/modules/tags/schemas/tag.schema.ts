@@ -1,6 +1,7 @@
 import { Schema, HookNextFunction } from 'mongoose';
 import uuid from 'uuid/v4';
 import uniqueValidator from 'mongoose-unique-validator';
+import { Tag } from '../interfaces/tag.interface';
 
 export const TagSchema = new Schema(
   {
@@ -42,19 +43,19 @@ TagSchema.set('toJSON', {
   },
 });
 
-TagSchema.pre('save', async function(next: HookNextFunction) {
+TagSchema.pre<Tag>('save', async function(next: HookNextFunction) {
   /**
    * Generate uuid
    */
   if (this.isNew) {
-    (this as any).uuid = uuid();
+    this.uuid = uuid();
   }
   next();
 });
 
 // Always attach `populate()` to `find()` calls
-TagSchema.pre('find', function() {
-  (this as any).populate({ path: 'parent', select: 'id uuid name' });
+TagSchema.pre<Tag>('find', function() {
+  this.populate({ path: 'parent', select: 'id uuid name' });
 });
 
 TagSchema.plugin(uniqueValidator);

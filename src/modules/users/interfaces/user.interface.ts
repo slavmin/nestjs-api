@@ -2,10 +2,10 @@ import { Document } from 'mongoose';
 
 export interface User extends Document {
   readonly id: string;
-  readonly uuid: string;
+  uuid: string;
   readonly name: string;
   readonly email: string;
-  readonly password: string;
+  password: string;
   readonly role?: string;
   readonly status?: string;
   readonly verification_code?: string;
@@ -13,6 +13,7 @@ export interface User extends Document {
   readonly phone?: string;
   readonly phone_verified?: boolean;
   readonly language?: string;
+  readonly picture_url: string;
   readonly country?: string;
   readonly password_reset_token?: string;
   readonly password_reset_expires?: string;

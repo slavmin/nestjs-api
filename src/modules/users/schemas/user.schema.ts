@@ -4,6 +4,7 @@ import { Schema, HookNextFunction } from 'mongoose';
 import { Role, Status } from './../enums/enums';
 import mongoosePaginate from 'mongoose-paginate-v2';
 import uniqueValidator from 'mongoose-unique-validator';
+import { User } from '../interfaces/user.interface';
 
 export const UserSchema = new Schema(
   {
@@ -96,7 +97,6 @@ export const UserSchema = new Schema(
     },
     block_expires: {
       type: Date,
-      // default: Date.now,
       default: null,
       select: false,
     },
@@ -106,16 +106,12 @@ export const UserSchema = new Schema(
     },
     ban_expires: {
       type: Date,
-      // default: Date.now,
       default: null,
       select: false,
     },
-    // created_at: { type: Date, default: Date.now, select: false },
-    // updated_at: { type: Date, default: Date.now, select: false },
   },
   {
     versionKey: false,
-    // timestamps: false,
     timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },
   },
 );
@@ -132,18 +128,13 @@ UserSchema.set('toJSON', {
   },
 });
 
-UserSchema.pre('save', async function(next: HookNextFunction) {
+UserSchema.pre<User>('save', async function(next: HookNextFunction) {
   /**
    * Generate uuid
    */
   if (this.isNew) {
-    (this as any).uuid = uuid();
+    this.uuid = uuid();
   }
-  /**
-   * On every save, add the date
-   */
-  // const currentDate = new Date();
-  // (this as any).updated_at = currentDate;
   /**
    * Rehash password if modified
    */
@@ -151,8 +142,8 @@ UserSchema.pre('save', async function(next: HookNextFunction) {
     if (!this.isModified('password')) {
       return next();
     }
-    const hashedPass = await bcrypt.hash((this as any).password, 10);
-    (this as any).password = hashedPass;
+    const hashedPass = await bcrypt.hash(this.password, 12);
+    this.password = hashedPass;
     return next();
   } catch (err) {
     return next(err);

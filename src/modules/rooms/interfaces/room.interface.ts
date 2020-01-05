@@ -5,11 +5,12 @@ import { Tag } from '../../tags/interfaces/tag.interface';
 
 export interface Room extends Document {
   readonly id: string;
-  readonly uuid: string;
+  uuid: string;
   readonly owner: User;
   readonly name: string;
   readonly gender: string;
   readonly age: number;
+  picture_url: string;
   country: string;
   description?: string;
   languages: string[];

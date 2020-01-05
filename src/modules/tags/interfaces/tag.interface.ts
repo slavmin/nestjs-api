@@ -2,7 +2,7 @@ import { Document } from 'mongoose';
 
 export interface Tag extends Document {
   readonly id: string;
-  readonly uuid: string;
+  uuid: string;
   name: string;
   description?: string;
   parent: Tag;

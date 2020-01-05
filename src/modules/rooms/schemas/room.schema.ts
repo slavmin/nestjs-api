@@ -2,6 +2,7 @@ import { Schema, HookNextFunction } from 'mongoose';
 import { Gender } from './../enums/enums';
 import uuid from 'uuid/v4';
 import uniqueValidator from 'mongoose-unique-validator';
+import { Room } from '../interfaces/room.interface';
 
 export const RoomSchema = new Schema(
   {
@@ -62,12 +63,12 @@ RoomSchema.set('toJSON', {
   },
 });
 
-RoomSchema.pre('save', async function(next: HookNextFunction) {
+RoomSchema.pre<Room>('save', async function(next: HookNextFunction) {
   /**
    * Generate uuid
    */
   if (this.isNew) {
-    (this as any).uuid = uuid();
+    this.uuid = uuid();
   }
   next();
 });
