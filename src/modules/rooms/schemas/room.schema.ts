@@ -1,6 +1,6 @@
 import { Schema, HookNextFunction } from 'mongoose';
 import { Gender } from './../enums/enums';
-import uuid from 'uuid/v4';
+import { v4 as uuidv4 } from 'uuid';
 import uniqueValidator from 'mongoose-unique-validator';
 import { Room } from '../interfaces/room.interface';
 
@@ -68,7 +68,7 @@ RoomSchema.pre<Room>('save', async function(next: HookNextFunction) {
    * Generate uuid
    */
   if (this.isNew) {
-    this.uuid = uuid();
+    this.uuid = uuidv4();
   }
   next();
 });

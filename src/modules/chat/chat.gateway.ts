@@ -23,6 +23,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   @WebSocketServer() wss: Server;
 
   totalUsers: number = 0;
+  connectedUsers = {};
   messages = [];
   rmessname: string = 'ChatRoom';
   welcomeMessages = [
@@ -49,6 +50,8 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     }
 
     this.totalUsers++;
+    this.connectedUsers[client.request.user.name] = client.id;
+    this.logger.log('Users total: ' + JSON.stringify(this.connectedUsers));
     // Notify connected clients of current users
     this.wss.emit('count', this.totalUsers);
   }
@@ -72,20 +75,21 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     }
 
     const mess: object = { user: { name: userName }, content: message.content };
-    const room: string = message.room;
-    // this.messages.push(room);
+    const room: string = message.room.toString();
     // client.broadcast.to(message.room).emit(event, mess);
     // this.wss.in(message.room).emit(event, mess);
-    // this.messages[message.room].push(mess);
+    const messObj = { room, message: mess };
+    this.messages.push(messObj);
 
     // Object.keys(this.wss.clients().connected).map(id => {
     //   this.logger.log('Connected users: ' + id);
     //   // clientObjects[id].disconnect(true);
     // });
 
+    this.logger.log('Messages total: ' + JSON.stringify(this.messages));
+
     return Observable.create(observer => observer.next({ event, mess })).subscribe(
       (data: { event: string | symbol; mess: object }) => {
-        // this.messages[room].push(data.data);
         this.wss.in(room).emit(data.event, data.mess);
       },
     );
@@ -96,6 +100,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     client.join(room);
 
     this.wss.in(room).clients((err: any, clients: { length: any }) => {
+      this.logger.log('Users in room: ' + JSON.stringify(clients));
       this.wss.in(room).emit('room_users', clients.length);
     });
     // Send welcome messages to the connected user

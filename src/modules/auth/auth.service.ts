@@ -8,7 +8,7 @@ import { RegisterDto, LoginDto, EmailDto, ResetPassDto, SendMailDto } from './dt
 // import { Provider } from './strategies/providers';
 import { MailerService } from '@nest-modules/mailer';
 import crypto from 'crypto';
-import uuid from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 import moment from 'moment';
 
 @Injectable()
@@ -248,7 +248,7 @@ export class AuthService {
   static async makeTokenId(): Promise<string> {
     return crypto
       .createHash('sha256')
-      .update(uuid.v4())
+      .update(uuidv4())
       .digest('hex');
   }
 

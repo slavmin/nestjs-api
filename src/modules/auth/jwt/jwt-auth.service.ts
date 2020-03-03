@@ -6,7 +6,7 @@ import { JwtPayload } from './../dto/auth.dto';
 import { WsException } from '@nestjs/websockets';
 import * as jwt from 'jsonwebtoken';
 import crypto from 'crypto';
-import uuid from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class JwtAuthService {
@@ -144,7 +144,7 @@ export class JwtAuthService {
   static async makeTokenId(): Promise<string> {
     return crypto
       .createHash('sha256')
-      .update(uuid.v4())
+      .update(uuidv4())
       .digest('hex');
   }
 }

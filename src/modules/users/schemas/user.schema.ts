@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt';
-import uuid from 'uuid/v4';
+import { v4 as uuidv4 } from 'uuid';
 import { Schema, HookNextFunction } from 'mongoose';
 import { Role, Status } from './../enums/enums';
 import mongoosePaginate from 'mongoose-paginate-v2';
@@ -133,7 +133,7 @@ UserSchema.pre<User>('save', async function(next: HookNextFunction) {
    * Generate uuid
    */
   if (this.isNew) {
-    this.uuid = uuid();
+    this.uuid = uuidv4();
   }
   /**
    * Rehash password if modified
