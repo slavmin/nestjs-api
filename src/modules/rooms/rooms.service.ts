@@ -18,7 +18,7 @@ export class RoomsService {
   }
 
   async create(room: CreateDto, user: User): Promise<Partial<Room>> {
-    const isExist = await this.roomModel.findOne({ owner: user.id }).exec();
+    const isExist = await this.roomModel.findOne({ owner: user.id as unknown }).exec();
     if (isExist) {
       throw new HttpException('EXIST_ALREADY', HttpStatus.BAD_REQUEST);
     }
