@@ -28,10 +28,7 @@ export class RoomsService {
   }
 
   async getAll(options?: any): Promise<Room[]> {
-    return await this.roomModel
-      .find(options)
-      .populate({ path: 'tags', select: 'id uuid name parent' })
-      .exec();
+    return await this.roomModel.find(options).populate({ path: 'tags', select: 'id uuid name parent' }).exec();
   }
 
   async getById(id: string): Promise<Partial<Room> | null> {

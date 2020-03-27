@@ -14,9 +14,9 @@ export class TagsController {
   @Get()
   async findAll(): Promise<any[]> {
     const tags = await this.tagsService.getAll();
-    const filtered = tags.filter(tag => tag.ancestors.length > 0);
+    const filtered = tags.filter((tag) => tag.ancestors.length > 0);
     // const sortFiltered = filtered.sort((a, b) => a.parent.name.localeCompare(b.parent.name));
-    const res = filtered.map(tag => {
+    const res = filtered.map((tag) => {
       if (tag.ancestors.length > 0) {
         return { name: tag.name, description: tag.description, parent: tag.parent.name };
       }
@@ -52,12 +52,12 @@ export class TagsController {
             });
             arr.push(res);
           });
-          await Promise.all(requests).catch(e => Logger.log(`Error in seeding childs for tag ${e}`));
+          await Promise.all(requests).catch((e) => Logger.log(`Error in seeding childs for tag ${e}`));
         }
         resolve(arr);
       });
     });
 
-    return await Promise.all(seeds).catch(e => Logger.log(`Error in seeding tags ${e}`));
+    return await Promise.all(seeds).catch((e) => Logger.log(`Error in seeding tags ${e}`));
   }
 }

@@ -43,7 +43,7 @@ TagSchema.set('toJSON', {
   },
 });
 
-TagSchema.pre<Tag>('save', async function(next: HookNextFunction) {
+TagSchema.pre<Tag>('save', async function (next: HookNextFunction) {
   /**
    * Generate uuid
    */
@@ -54,7 +54,7 @@ TagSchema.pre<Tag>('save', async function(next: HookNextFunction) {
 });
 
 // Always attach `populate()` to `find()` calls
-TagSchema.pre<Tag>('find', function() {
+TagSchema.pre<Tag>('find', function () {
   this.populate({ path: 'parent', select: 'id uuid name' });
 });
 

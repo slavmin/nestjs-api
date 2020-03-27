@@ -34,13 +34,13 @@ export const UserSchema = new Schema(
     },
     role: {
       type: String,
-      enum: Object.values(Role).filter(v => isNaN(Number(v)) === true),
+      enum: Object.values(Role).filter((v) => isNaN(Number(v)) === true),
       default: Role[Role.user],
       index: true,
     },
     status: {
       type: String,
-      enum: Object.values(Status).filter(v => isNaN(Number(v)) === true),
+      enum: Object.values(Status).filter((v) => isNaN(Number(v)) === true),
       default: Status[Status.iron],
       index: true,
     },
@@ -128,7 +128,7 @@ UserSchema.set('toJSON', {
   },
 });
 
-UserSchema.pre<User>('save', async function(next: HookNextFunction) {
+UserSchema.pre<User>('save', async function (next: HookNextFunction) {
   /**
    * Generate uuid
    */

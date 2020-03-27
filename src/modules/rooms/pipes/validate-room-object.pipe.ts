@@ -14,7 +14,7 @@ export class ValidateRoomObject implements PipeTransform<string> {
     const tagsArr = [];
 
     if (tags) {
-      Object.values(tags).map(val => {
+      Object.values(tags).map((val) => {
         if (val.parent && ValidateRoomObject.isIdValid(val.parent._id)) {
           const item = { name: val.name, description: val.description, id: val._id };
           const parentId = val.parent._id.toString();
@@ -30,9 +30,9 @@ export class ValidateRoomObject implements PipeTransform<string> {
       const categories: object = Object.values(tagsCategories);
       const bodyKeys = Object.keys(value);
 
-      Object.values(categories).forEach(val => {
+      Object.values(categories).forEach((val) => {
         if (bodyKeys.includes(val.name)) {
-          Object.values(val.childs).forEach(child => {
+          Object.values(val.childs).forEach((child) => {
             const childObj: any = child;
             if (val.name === 'age') {
               const ageDesc = childObj.description ? childObj.description.split('-') : null;

@@ -33,7 +33,7 @@ export class JwtAuthService {
   ): Promise<User | null> {
     const jwtSecret = isRefresh ? this.configService.get('JWT_REFRESH_SECRET') : this.configService.get('JWT_SECRET');
     const payload = jwt.verify(token, jwtSecret, options) as JwtPayload;
-    const data = await this.getTokenFromStore(payload).catch(err => {
+    const data = await this.getTokenFromStore(payload).catch((err) => {
       if (isWs) {
         throw new WsException('UNAUTHORIZED');
       } else {
@@ -132,7 +132,7 @@ export class JwtAuthService {
       cacheClient.get(payload.sub, (error: any, response: string) => {
         error ? reject(error) : resolve(JSON.parse(response));
       });
-    }).then(data => {
+    }).then((data) => {
       return new Promise((resolve, reject) => {
         cacheClient.ttl(payload.sub, (error: any, response: number) => {
           error ? reject(error) : resolve(Object.assign({}, data, { ttl: response }));
@@ -142,9 +142,6 @@ export class JwtAuthService {
   }
 
   static async makeTokenId(): Promise<string> {
-    return crypto
-      .createHash('sha256')
-      .update(uuidv4())
-      .digest('hex');
+    return crypto.createHash('sha256').update(uuidv4()).digest('hex');
   }
 }

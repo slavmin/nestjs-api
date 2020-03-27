@@ -91,10 +91,7 @@ export class UsersService {
   }
 
   async getOneWithPassReset(args: object): Promise<any> {
-    const user = await this.userModel
-      .findOne(args)
-      .select(['password_reset_token', 'password_reset_expires'])
-      .exec();
+    const user = await this.userModel.findOne(args).select(['password_reset_token', 'password_reset_expires']).exec();
     return user;
   }
 
@@ -145,10 +142,7 @@ export class UsersService {
   }
 
   private async checkPassword(email: string, password: string, data: Partial<ServiceDto>): Promise<boolean> {
-    const user = await this.userModel
-      .findOne({ email })
-      .select(['password'])
-      .exec();
+    const user = await this.userModel.findOne({ email }).select(['password']).exec();
 
     const block = moment(data.block_expires).unix();
     const now = moment().unix();

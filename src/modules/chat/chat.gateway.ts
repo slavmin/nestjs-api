@@ -97,7 +97,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
     // this.logger.log('Messages total: ' + JSON.stringify(this.messages));
 
-    return Observable.create(observer => observer.next({ event, mess })).subscribe(
+    return Observable.create((observer) => observer.next({ event, mess })).subscribe(
       (data: { event: string | symbol; mess: object }) => {
         this.wss.in(room).emit(data.event, data.mess);
       },
@@ -112,7 +112,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     this.wss.in(room).clients((err: any, clients: { length: any }) => {
       // this.logger.log('Users in room: ' + JSON.stringify(clients));
       this.connectedUsers[client.request.user.socket] = client.request.user;
-      Object.values(clients).forEach(clientId => {
+      Object.values(clients).forEach((clientId) => {
         inRoomUsers.push(this.connectedUsers[clientId]);
       });
 
@@ -122,10 +122,10 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
     // Send last messages to the connected user
     if (this.messages[room] && this.messages[room].messages) {
-      this.messages[room].messages.map(mess => client.emit('message', mess));
+      this.messages[room].messages.map((mess) => client.emit('message', mess));
     }
     // Send welcome messages to the connected user
-    this.welcomeMessages.map(mess => client.emit('message', mess));
+    this.welcomeMessages.map((mess) => client.emit('message', mess));
     client.emit('joined', room);
   }
 
@@ -135,7 +135,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     const inRoomUsers = [];
 
     this.wss.in(room).clients((err: any, clients: { length: any }) => {
-      Object.values(clients).forEach(clientId => {
+      Object.values(clients).forEach((clientId) => {
         inRoomUsers.push(this.connectedUsers[clientId]);
       });
 

@@ -240,16 +240,13 @@ export class AuthService {
           contactEmail: this.configService.get('APP_MAIL'),
         },
       })
-      .catch(err => {
+      .catch((err) => {
         throw new HttpException('MAIL_SENDER_FAILED', HttpStatus.INTERNAL_SERVER_ERROR);
       });
   }
 
   static async makeTokenId(): Promise<string> {
-    return crypto
-      .createHash('sha256')
-      .update(uuidv4())
-      .digest('hex');
+    return crypto.createHash('sha256').update(uuidv4()).digest('hex');
   }
 
   // async validateOAuthLogin(thirdPartyId: string, provider: Provider): Promise<any> {

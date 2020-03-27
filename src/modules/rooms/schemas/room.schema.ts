@@ -32,7 +32,7 @@ export const RoomSchema = new Schema(
     },
     gender: {
       type: String,
-      enum: Object.values(Gender).filter(v => isNaN(Number(v)) === true),
+      enum: Object.values(Gender).filter((v) => isNaN(Number(v)) === true),
       default: Gender[Gender.girl],
       index: true,
     },
@@ -63,7 +63,7 @@ RoomSchema.set('toJSON', {
   },
 });
 
-RoomSchema.pre<Room>('save', async function(next: HookNextFunction) {
+RoomSchema.pre<Room>('save', async function (next: HookNextFunction) {
   /**
    * Generate uuid
    */

@@ -8,10 +8,7 @@ export class CreateDto {
   @Max(108, { message: 'MAX:108' })
   age: number;
 
-  @IsIn(
-    Object.values(Gender).filter(v => isNaN(Number(v)) === true),
-    { message: 'NOT_ACCEPTABLE_VALUE' },
-  )
+  @IsIn(Object.values(Gender).filter((v) => isNaN(Number(v)) === true), { message: 'NOT_ACCEPTABLE_VALUE' })
   gender: string;
 
   @IsOptional()
